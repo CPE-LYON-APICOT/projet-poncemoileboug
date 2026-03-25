@@ -238,7 +238,7 @@ src/main/java/fr/cpe/
 │   ├── observer/
 │   │   ├── InstallationObserver.java   (interface)
 │   │   └── SanitaireEvent.java         (enum)
-│   └── user/
+│   └── user/                           (dans la partie envisagée)
 │       ├── Client.java
 │       └── Admin.java
 └── service/
