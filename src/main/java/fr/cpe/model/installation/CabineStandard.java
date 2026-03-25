@@ -1,22 +1,14 @@
 package fr.cpe.model.installation;
 
 import java.util.ArrayList;
-import fr.cpe.model.observer.SanitaireEvent;
 import java.util.List;
-
 import fr.cpe.model.consommable.Consommable;
 
-public class CabineStandard implements Installation {
+public class CabineStandard extends AbstractInstallation {
     private static final double PRIX_STANDARD = 1.50;
 
-    private final String description;
-    private final List<Consommable> lesConsommables;
-    private boolean disponible;
-
     public CabineStandard(List<Consommable> lesConsommables) {
-        this.description = "Cabine Standard";
-        this.lesConsommables = new ArrayList<>(lesConsommables);
-        this.disponible = true;
+        super(lesConsommables);
     }
 
     @Override
@@ -26,27 +18,6 @@ public class CabineStandard implements Installation {
 
     @Override
     public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public List<Consommable> getConsommables() {
-        return new ArrayList<>(lesConsommables); // ici on renvoie une COPIE de la liste pour éviter
-        // de se la faire vider avec cabine.getConsommables().clear();
-    }
-
-    @Override
-    public boolean isDisponible() {
-        return disponible;
-    }
-
-    @Override
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
-    }
-
-    @Override
-    public void notifyObservers(SanitaireEvent event) {
-        System.out.println("Notification : " + event + " sur une Cabine Standard");
+        return "Cabine Standard";
     }
 }
