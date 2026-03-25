@@ -1,6 +1,7 @@
 package fr.cpe.model.installation;
 
 import java.util.ArrayList;
+import fr.cpe.model.observer.SanitaireEvent;
 import java.util.List;
 
 import fr.cpe.model.consommable.Consommable;
@@ -13,7 +14,7 @@ public class CabineStandard implements Installation {
     private boolean disponible;
 
     public CabineStandard(List<Consommable> lesConsommables) {
-        this.description = "Cabine standard";
+        this.description = "Cabine Standard";
         this.lesConsommables = new ArrayList<>(lesConsommables);
         this.disponible = true;
     }
@@ -42,5 +43,10 @@ public class CabineStandard implements Installation {
     @Override
     public void setDisponible(boolean disponible) {
         this.disponible = disponible;
+    }
+
+    @Override
+    public void notifyObservers(SanitaireEvent event) {
+        System.out.println("Notification : " + event + " sur une Cabine Standard");
     }
 }

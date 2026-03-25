@@ -22,7 +22,7 @@ public class PapierToilette implements Consommable {
 
     @Override
     public int getSeuilAlerte() {
-        return seuilAlerte;
+        return 5;
     }
 
     @Override

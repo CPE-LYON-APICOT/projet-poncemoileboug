@@ -22,7 +22,7 @@ public class Savon implements Consommable {
 
     @Override
     public int getSeuilAlerte() {
-        return seuilAlerte;
+        return 10;
     }
 
     @Override

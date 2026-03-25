@@ -1,6 +1,7 @@
 package fr.cpe.model.installation;
 
 import java.util.ArrayList;
+import fr.cpe.model.observer.SanitaireEvent;
 import java.util.List;
 
 import fr.cpe.model.consommable.Consommable;
@@ -42,5 +43,10 @@ public class Douche implements Installation {
     @Override
     public void setDisponible(boolean disponible) {
         this.disponible = disponible;
+    }
+
+    @Override
+    public void notifyObservers(SanitaireEvent event) {
+        System.out.println("Notification : " + event + " sur une Douche");
     }
 }
