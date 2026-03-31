@@ -16,16 +16,13 @@ import java.util.Optional;
 
 import com.google.inject.Inject;
 
-import fr.cpe.engine.InputService;
 import fr.cpe.model.installation.Installation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
+
 
 public class GameService {
 
@@ -38,6 +35,8 @@ public class GameService {
         this.mapService = mapService;
         this.uiService = uiService;
         this.reservationService = reservationService;
+
+
     }
 
     public void init(Pane gamePane) {

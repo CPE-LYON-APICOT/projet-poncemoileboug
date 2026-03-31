@@ -60,16 +60,14 @@ public class App extends Application {
 
     private GameEngine engine;
     private InputService inputService;
+    public static final Injector injector = Guice.createInjector(new AppModule());
 
 
 
     @Override
     public void start(Stage stage) {
 
-         // Création de l'injecteur Guice avec notre module de configuration
-        Injector injector = Guice.createInjector(new AppModule());
-
-        // Guice construit le GameEngine et injecte automatiquement les services
+         // Guice construit le GameEngine et injecte automatiquement les services
         engine = injector.getInstance(GameEngine.class);
         inputService = injector.getInstance(InputService.class);
 

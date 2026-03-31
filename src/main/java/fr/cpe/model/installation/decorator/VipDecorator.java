@@ -4,6 +4,7 @@ import fr.cpe.model.installation.Installation;
 
 public class VipDecorator extends InstallationDecorator {
 
+    // private
     public VipDecorator(Installation decorated) {
         super(decorated);
     }
