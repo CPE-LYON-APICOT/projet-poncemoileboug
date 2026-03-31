@@ -4,7 +4,6 @@ import java.util.List;
 
 import fr.cpe.model.consommable.Consommable;
 import fr.cpe.model.observer.SanitaireEvent;
-import java.util.List;
 
 public interface Installation {
 
@@ -15,5 +14,5 @@ public interface Installation {
     void setDisponible(boolean disponible);
 
     void notifyObservers(SanitaireEvent event);
-
+    void addObserver(fr.cpe.model.observer.InstallationObserver observer);
 }

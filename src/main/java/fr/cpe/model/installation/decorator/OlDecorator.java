@@ -10,7 +10,7 @@ public class OlDecorator extends InstallationDecorator {
 
     @Override
     public double getPrix() {
-        return decorated.getPrix() + 1.50; // Prix de base + 1.50€ pour la licence et les équipements OL
+        return decorated.getPrix() + 1.50; // +1.5 pour la licence et les équipements OL
     }
 
     @Override

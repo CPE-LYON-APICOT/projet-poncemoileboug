@@ -10,7 +10,7 @@ public class LumiereDecorator extends InstallationDecorator {
 
     @Override
     public double getPrix() {
-        return decorated.getPrix() + 0.50; // Prix de base + 0.50€ pour la consommation électrique des LED
+        return decorated.getPrix() + 0.5; //+ 0.5 pour la conso élec
     }
 
     @Override

@@ -1,9 +1,11 @@
 package fr.cpe.model.installation.decorator;
 
-import fr.cpe.model.installation.Installation;
-import fr.cpe.model.consommable.Consommable;
-import fr.cpe.model.observer.SanitaireEvent;
 import java.util.List;
+
+import fr.cpe.model.consommable.Consommable;
+import fr.cpe.model.installation.Installation;
+import fr.cpe.model.observer.InstallationObserver;
+import fr.cpe.model.observer.SanitaireEvent;
 
 public abstract class InstallationDecorator implements Installation {
 
@@ -41,5 +43,10 @@ public abstract class InstallationDecorator implements Installation {
     @Override
     public void notifyObservers(SanitaireEvent event) {
         decorated.notifyObservers(event);
+    }
+
+    @Override
+    public void addObserver(InstallationObserver observer) {
+        decorated.addObserver(observer);
     }
 }

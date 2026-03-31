@@ -1,7 +1,7 @@
 package fr.cpe.model.installation;
 
-import java.util.ArrayList;
 import java.util.List;
+
 import fr.cpe.model.consommable.Consommable;
 
 public class CabineStandard extends AbstractInstallation {

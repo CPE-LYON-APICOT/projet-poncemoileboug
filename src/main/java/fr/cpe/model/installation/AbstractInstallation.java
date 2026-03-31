@@ -1,11 +1,11 @@
 package fr.cpe.model.installation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.cpe.model.consommable.Consommable;
 import fr.cpe.model.observer.InstallationObserver;
 import fr.cpe.model.observer.SanitaireEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractInstallation implements Installation {
 
@@ -15,7 +15,11 @@ public abstract class AbstractInstallation implements Installation {
     private final List<InstallationObserver> observers = new ArrayList<>();
 
     public AbstractInstallation(List<Consommable> consommables) {
-        this.consommables = (consommables != null) ? consommables : new ArrayList<>();
+        if (consommables != null) {
+            this.consommables = consommables;
+        } else {
+            this.consommables = new ArrayList<>();
+        }
     }
 
     @Override
@@ -26,8 +30,6 @@ public abstract class AbstractInstallation implements Installation {
     @Override
     public void setDisponible(boolean disponible) {
         this.disponible = disponible;
-        // Optionnel : on pourrait notifier du changement d'occupation ici
-        // notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
     }
 
     @Override
