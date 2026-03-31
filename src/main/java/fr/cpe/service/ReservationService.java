@@ -1,94 +1,52 @@
 package fr.cpe.service;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-
 import com.google.inject.Inject;
 
 import fr.cpe.model.installation.Installation;
 import fr.cpe.model.observer.SanitaireEvent;
-import fr.cpe.model.reservation.Reservation;
-import fr.cpe.model.user.User;
 
 public class ReservationService {
+
     private final StockService stockService;
     private final PaymentService paymentService;
-    private final Map<String, Reservation> reservations = new HashMap<>();
-    private final Timer timer = new Timer();
 
+    // Guice injecte automatiquement les dépendances via ce constructeur
     @Inject
     public ReservationService(StockService stockService, PaymentService paymentService) {
         this.stockService = stockService;
         this.paymentService = paymentService;
     }
 
-    /**
-     * Crée une réservation, valide la disponibilité et démarre le timer
-     */
-    public Reservation reserver(User user, Installation installation, 
-                                int durationMinutes, String paymentMethod) {
-        // Vérifier la disponibilité
+    // Retourne true si la réservation a été effectuée, false sinon
+    public boolean reserver(Installation installation) {
+        // 1. Vérifier la disponibilité
         if (!installation.isDisponible()) {
-            throw new IllegalStateException("installation non disponible");
+            System.out.println("[RESERVATION] Installation indisponible : " + installation.getDescription());
+            return false;
         }
 
-        // Effectuer le paiement
-        double prix = installation.getPrix();
-        paymentService.processPayment(user, prix, paymentMethod);
-
-        // Créer la réservation
-        String qrCode = generateQRCode();
-        Reservation reservation = new Reservation(
-            UUID.randomUUID().toString(),
-            user,
-            installation,
-            LocalDateTime.now(),
-            durationMinutes,
-            qrCode
-        );
-
-        // Marquer l'installation comme occupée
+        // 2. Marquer comme occupé
         installation.setDisponible(false);
-        reservations.put(qrCode, reservation);
+        installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
 
-        // Lancer le timer pour libérer l'installation
-        scheduleLiberation(installation, durationMinutes, qrCode);
+        // 3. Traiter le paiement
+        boolean paiementOk = paymentService.processPayment(installation.getPrix());
+        if (!paiementOk) {
+            // Rollback si le paiement échoue
+            installation.setDisponible(true);
+            return false;
+        }
 
-        return reservation;
+        // 4. Décrémenter les stocks
+        stockService.consume(installation);
+
+        return true;
     }
 
-    /**
-     * À la fin du timer : libérer l'installation, consommer les stocks, notifier
-     */
-    private void scheduleLiberation(Installation installation, int minutes, String qrCode) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                // Consommer les stocks
-                stockService.consume(installation);
-
-                // Marquer comme disponible
-                installation.setDisponible(true);
-
-                // Notifier les observateurs (nettoyage, carte, etc.)
-                installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
-                installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
-
-                // Nettoyer la réservation
-                reservations.remove(qrCode);
-            }
-        }, minutes * 60_000L); // convertir en millisecondes
-    }
-
-    private String generateQRCode() {
-        return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }
-
-    public Reservation getReservation(String qrCode) {
-        return reservations.get(qrCode);
+    // Appelé par le GameEngine quand le timer expire
+    public void liberer(Installation installation) {
+        installation.setDisponible(true);
+        installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
+        installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
     }
 }

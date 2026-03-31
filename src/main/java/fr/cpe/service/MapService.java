@@ -1,0 +1,67 @@
+package fr.cpe.service;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import fr.cpe.model.consommable.PapierToilette;
+import fr.cpe.model.consommable.Savon;
+import fr.cpe.model.consommable.Shampoing;
+import fr.cpe.model.installation.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+@Singleton
+public class MapService {
+
+    // id → [x, y, description, Installation]
+    private final Map<String, Object[]> installations = new HashMap<>();
+
+    private final StockService stockService;
+    private final ReservationService reservationService;
+
+    @Inject
+    public MapService(StockService stockService, ReservationService reservationService) {
+        this.stockService = stockService;
+        this.reservationService = reservationService;
+        initialiserInstallations();
+    }
+
+    private void initialiserInstallations() {
+        // x, y = position en pixels sur l'image 800x600
+        ajouter("bellecour",
+            new CabineStandard(Arrays.asList(new PapierToilette(20, 5), new Savon(15, 3))),
+            400, 300, "Cabine Standard — Bellecour"
+        );
+        ajouter("presquile",
+            new Urinoir(Arrays.asList()),
+            370, 220, "Urinoir — Presqu'île"
+        );
+        ajouter("perrache",
+            new Douche(Arrays.asList(new Shampoing(10, 2)), "Douche Perrache"),
+            340, 420, "Douche — Perrache"
+        );
+        ajouter("partdieu",
+            new CabineTurque(Arrays.asList(new PapierToilette(10, 3))),
+            560, 250, "Cabine Turque — Part-Dieu"
+        );
+    }
+
+    private void ajouter(String id, Installation installation,
+                          double x, double y, String description) {
+        stockService.register(installation);
+        installations.put(id, new Object[]{x, y, description, installation});
+    }
+
+    public Map<String, Object[]> getInstallations() {
+        return installations;
+    }
+
+    public Installation getInstallationById(String id) {
+        return (Installation) installations.get(id)[3];
+    }
+
+    public ReservationService getReservationService() {
+        return reservationService;
+    }
+}

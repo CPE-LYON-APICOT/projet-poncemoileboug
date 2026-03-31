@@ -1,45 +1,30 @@
 package fr.cpe.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.inject.Inject;
 
-import fr.cpe.model.consommable.Consommable;
 import fr.cpe.model.installation.Installation;
+import fr.cpe.model.observer.InstallationObserver;
+import fr.cpe.model.observer.SanitaireEvent;
 
-public class MaintenanceService {
-    
-    private final List<String> alertes = new ArrayList<>();
+public class MaintenanceService implements InstallationObserver {
 
-    /**
-     * Alerte sur un stock critique
-     */
-    public void alerteStock(Installation installation, Consommable item) {
-        String message = "stock critique : " + item.getNom() 
-                       + " (" + item.getQuantite() + " restant(s)) "
-                       + "— Installation : " + installation.getDescription();
-        alertes.add(message);
-        
-        notifierAgent(message);
+    @Inject
+    public MaintenanceService() {}
+
+    @Override
+    public void onEvent(Installation source, SanitaireEvent event) {
+        if (event == SanitaireEvent.NETTOYAGE_REQUIS) {
+            notifierAgent(source);
+        } else if (event == SanitaireEvent.STOCK_ALERT) {
+            alerteStock(source);
+        }
     }
 
-    /**
-     * Alerte sur un nettoyage requis
-     */
-    public void alerteNettoyage(Installation installation) {
-        String message = "nettoyage requis : " + installation.getDescription();
-        alertes.add(message);
-        notifierAgent(message);
+    public void notifierAgent(Installation installation) {
+        System.out.println("[MAINTENANCE] Nettoyage requis : " + installation.getDescription());
     }
 
-    private void notifierAgent(String message) {
-        System.out.println("[MAINTENANCE] " + message);
-    }
-
-    public List<String> getAlertes() {
-        return new ArrayList<>(alertes);
-    }
-
-    public void clearAlertes() {
-        alertes.clear();
+    public void alerteStock(Installation installation) {
+        System.out.println("[MAINTENANCE] Stock critique : " + installation.getDescription());
     }
 }
