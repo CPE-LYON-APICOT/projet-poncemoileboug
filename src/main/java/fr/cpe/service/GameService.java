@@ -79,9 +79,13 @@ public class GameService {
                               String description, Installation installation) {
 
         // Couleur selon disponibilité : vert = libre, rouge = occupé
-        Color couleurInitiale = installation.isDisponible()
-            ? Color.web("#22c55e")  // vert
-            : Color.web("#ef4444"); // rouge
+        Color couleurInitiale;
+
+        if (installation.isDisponible()) {
+            couleurInitiale = Color.web("#22c55e");
+        } else {
+            couleurInitiale = Color.web("#ef4444");
+        }
 
         // Le cercle (ping)
         Circle ping = new Circle(x, y, 12, couleurInitiale);
@@ -90,7 +94,7 @@ public class GameService {
 
         // Le label
         Text label = new Text(x + 15, y + 5, description);
-        label.setFill(Color.WHITE);
+        label.setFill(Color.BLACK);
         label.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
 
         // Clic sur le ping
@@ -98,15 +102,19 @@ public class GameService {
 
         // Effets de survol
         ping.setOnMouseEntered(e -> {
-            ping.setFill(installation.isDisponible()
-                ? Color.web("#16a34a")
-                : Color.web("#dc2626"));
+            if (installation.isDisponible()) {
+                ping.setFill(Color.web("#16a34a"));
+            } else {
+                ping.setFill(Color.web("#dc2626"));
+            }
         });
 
         ping.setOnMouseExited(e -> {
-            ping.setFill(installation.isDisponible()
-                ? Color.web("#22c55e")
-                : Color.web("#ef4444"));
+            if (installation.isDisponible()) {
+                ping.setFill(Color.web("#22c55e"));
+            } else {
+                ping.setFill(Color.web("#ef4444"));
+            }
         });
 
         pane.getChildren().addAll(ping, label);
