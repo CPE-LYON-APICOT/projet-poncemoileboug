@@ -14,8 +14,8 @@ import java.util.Map;
 @Singleton
 public class MapService {
 
-    // id → [x, y, description, Installation]
-    private final Map<String, Object[]> installations = new HashMap<>();
+    // On utilise directement Installation comme valeur dans la Map
+    private final Map<String, Installation> lesInstallations = new HashMap<>();
 
     private final StockService stockService;
     private final ReservationService reservationService;
@@ -47,18 +47,25 @@ public class MapService {
     }
 
     private void ajouter(String id, Installation installation, double x, double y) {
+        installation.setPosition(x, y);
+
+        if (installation instanceof AbstractInstallation) {
+            ((AbstractInstallation) installation).setId(id);
+        }
+
         stockService.register(installation);
-        installations.put(id, new Object[]{x, y, installation.getDescription(), installation});
+
+        lesInstallations.put(id, installation);
     }
 
-    public Map<String, Object[]> getInstallations() {
-        return installations;
+    public Map<String, Installation> getInstallations() {
+        return lesInstallations;
     }
 
     public Installation getInstallationById(String id) {
-        Object[] data = installations.get(id);
-        if (data == null) throw new IllegalArgumentException("Installation inconnue : " + id);
-        return (Installation) data[3];
+        Installation inst = lesInstallations.get(id);
+        if (inst == null) throw new IllegalArgumentException("Installation inconnue : " + id);
+        return inst;
     }
 
     public ReservationService getReservationService() {

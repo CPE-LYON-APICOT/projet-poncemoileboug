@@ -30,7 +30,6 @@ public class GameService {
 
     private final MapService mapService;
 
-    @Inject
     public GameService(MapService mapService) {
         this.mapService = mapService;
     }
@@ -43,26 +42,29 @@ public class GameService {
         imageView.setFitHeight(600);
         gamePane.getChildren().add(imageView);
 
-        // Ajoute les pings
-        mapService.getInstallations().forEach((id, data) -> {
-            double x = (double) data[0];
-            double y = (double) data[1];
-            String description = (String) data[2];
-            Installation installation = mapService.getInstallationById(id);
+        // --- CORRECTION ICI : On utilise directement l'objet Installation ---
+        mapService.getInstallations().forEach((id, installation) -> {
+            // On utilise les getters que nous avons ajoutés à l'interface/classe abstraite
+            double x = installation.getX();
+            double y = installation.getY();
+            String description = installation.getDescription();
 
             ajouterPing(gamePane, x, y, description, installation);
         });
     }
 
-    public void update(double w, double h) {}
+    public void update(double w, double h) {
+        // Logique de mise à jour (vide pour l'instant)
+    }
 
     private void ajouterPing(Pane pane, double x, double y,
                               String description, Installation installation) {
+
         // Couleur selon disponibilité : vert = libre, rouge = occupé
-        Color couleurInitiale = installation.isDisponible() 
+        Color couleurInitiale = installation.isDisponible()
             ? Color.web("#22c55e")  // vert
             : Color.web("#ef4444"); // rouge
-        
+
         // Le cercle (ping)
         Circle ping = new Circle(x, y, 12, couleurInitiale);
         ping.setStroke(Color.WHITE);
@@ -75,32 +77,35 @@ public class GameService {
 
         // Clic sur le ping
         ping.setOnMouseClicked(e -> afficherPopup(installation, ping));
+
+        // Effets de survol
         ping.setOnMouseEntered(e -> {
-            if (installation.isDisponible()) {
-                ping.setFill(Color.web("#16a34a")); // vert foncé = disponible au survol
-            } else {
-                ping.setFill(Color.web("#dc2626")); // rouge foncé = occupé au survol
-            }
+            ping.setFill(installation.isDisponible()
+                ? Color.web("#16a34a")
+                : Color.web("#dc2626"));
         });
+
         ping.setOnMouseExited(e -> {
-            if (installation.isDisponible()) {
-                ping.setFill(Color.web("#22c55e")); // vert = disponible
-            } else {
-                ping.setFill(Color.web("#ef4444")); // rouge = occupé
-            }
+            ping.setFill(installation.isDisponible()
+                ? Color.web("#22c55e")
+                : Color.web("#ef4444"));
         });
 
         pane.getChildren().addAll(ping, label);
     }
 
     private void afficherPopup(Installation installation, Circle ping) {
+        if (!installation.isDisponible()) {
+            afficherResultat(false, installation.getDescription());
+            return;
+        }
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Réservation");
         alert.setHeaderText(installation.getDescription());
 
-        String statut = installation.isDisponible() ? "Disponible" : "Occupée";
         alert.setContentText(
-            statut + "\n" +
+            "Statut : Disponible\n" +
             "Prix : " + installation.getPrix() + "€\n\n" +
             "Voulez-vous réserver ?"
         );
@@ -109,7 +114,7 @@ public class GameService {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             boolean ok = mapService.getReservationService().reserver(installation);
             if (ok) {
-                ping.setFill(Color.web("#ef4444")); // rouge = occupé
+                ping.setFill(Color.web("#ef4444")); // Mise à jour visuelle immédiate
             }
             afficherResultat(ok, installation.getDescription());
         }

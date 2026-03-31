@@ -20,10 +20,17 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import fr.cpe.engine.GameEngine;
 import fr.cpe.engine.InputService;
+import fr.cpe.service.GameService;
+import fr.cpe.service.MapService;
+import fr.cpe.service.PaymentService;
+import fr.cpe.service.ReservationService;
+import fr.cpe.service.StockService;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import fr.cpe.service.PaymentStrategy;
+import fr.cpe.service.CardStrategy;
 
 /**
  * Point d'entrée de l'application JavaFX.
@@ -56,26 +63,44 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Création de l'injecteur Guice avec notre module de configuration
-        Injector injector = Guice.createInjector(new AppModule());
+        // --- ÉTAPE 1 : ASSEMBLAGE MANUEL DES SERVICES ---
 
-        // Guice construit le GameEngine et injecte automatiquement les services
-        engine = injector.getInstance(GameEngine.class);
-        InputService inputService = injector.getInstance(InputService.class);
+        // 1. Services de base
+        StockService stockService = new StockService();
+        InputService inputService = new InputService();
+
+        // 2. Stratégie de paiement (D'après ton screenshot : CardStrategy)
+        // Tu peux aussi mettre new LydiaStrategy() si tu préfères
+        PaymentStrategy strategy = new CardStrategy();
+
+        // 3. Service de paiement (a besoin de la stratégie)
+        PaymentService paymentService = new PaymentService(strategy);
+
+        // 4. Service de réservation (a besoin du stock et du paiement)
+        ReservationService reservationService = new ReservationService(stockService, paymentService);
+
+        // 5. Service de la carte (a besoin du stock et de la réservation)
+        MapService mapService = new MapService(stockService, reservationService);
+
+        // 6. Service de jeu et Moteur (le sommet de la pyramide)
+        GameService gameService = new GameService(mapService);
+        this.engine = new GameEngine(gameService);
+
+        // --- ÉTAPE 2 : CONFIGURATION JAVAFX ---
 
         Pane gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: #1e1e2e;");
         Scene scene = new Scene(gamePane, WIDTH, HEIGHT);
 
-        // Capture des événements clavier → InputService
+        // Liaison des contrôles clavier
         scene.setOnKeyPressed(e -> inputService.handleKeyPressed(e.getCode()));
         scene.setOnKeyReleased(e -> inputService.handleKeyReleased(e.getCode()));
 
-        stage.setTitle("Projet POO");
+        stage.setTitle("Projet POO - ToiletteMonLyon");
         stage.setScene(scene);
         stage.show();
 
-        // Lancement de la boucle de jeu
+        // Lancement du moteur
         engine.start(gamePane);
     }
 

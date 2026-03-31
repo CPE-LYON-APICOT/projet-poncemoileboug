@@ -49,4 +49,19 @@ public abstract class InstallationDecorator implements Installation {
     public void addObserver(InstallationObserver observer) {
         decorated.addObserver(observer);
     }
+
+    @Override
+    public double getX() {
+        return decorated.getX();
+    }
+
+    @Override
+    public double getY() {
+        return decorated.getY();
+    }
+
+    @Override
+    public void setPosition(double x, double y) {
+        decorated.setPosition(x, y);
+    }
 }

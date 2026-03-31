@@ -15,4 +15,7 @@ public interface Installation {
 
     void notifyObservers(SanitaireEvent event);
     void addObserver(fr.cpe.model.observer.InstallationObserver observer);
+    double getX();
+    double getY();
+    void setPosition(double x, double y);
 }

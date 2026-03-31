@@ -1,7 +1,5 @@
 package fr.cpe.service;
 
-import com.google.inject.Inject;
-
 import fr.cpe.model.installation.Installation;
 import fr.cpe.model.observer.SanitaireEvent;
 
@@ -10,8 +8,6 @@ public class ReservationService {
     private final StockService stockService;
     private final PaymentService paymentService;
 
-    // Guice injecte automatiquement les dépendances via ce constructeur
-    @Inject
     public ReservationService(StockService stockService, PaymentService paymentService) {
         this.stockService = stockService;
         this.paymentService = paymentService;
