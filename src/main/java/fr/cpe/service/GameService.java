@@ -12,7 +12,10 @@ package fr.cpe.service;
 // ║                                                                            ║
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
+import java.util.Optional;
+
 import com.google.inject.Inject;
+
 import fr.cpe.model.installation.Installation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -22,47 +25,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-
-/**
- * Service de jeu — gère l'état du jeu et ses éléments visuels.
- *
- * <h2>C'est ici que vous codez votre jeu !</h2>
- *
- * <p>Ce fichier est un <strong>exemple</strong> : une balle qui rebondit.
- * Remplacez tout par votre propre logique.</p>
- *
- * <h2>Méthodes importantes :</h2>
- * <ul>
- *   <li>{@code init(gamePane)} — appelé une fois au démarrage, créez vos Nodes ici</li>
- *   <li>{@code update(width, height)} — appelé ~60x/sec, mettez à jour la logique et les positions ici</li>
- * </ul>
- *
- * <h2>Rendu (Scene Graph) :</h2>
- * <p>Pas besoin de méthode render() ! Vous créez des Nodes JavaFX (Circle, Rectangle,
- * Text, ImageView…) dans {@code init()}, vous les ajoutez au {@code gamePane},
- * et JavaFX les affiche automatiquement. Dans {@code update()}, vous mettez à jour
- * leurs positions.</p>
- *
- * <h2>Clics souris :</h2>
- * <p>Chaque Node gère ses propres clics :</p>
- * <pre>
- *   monCercle.setOnMouseClicked(e -&gt; {
- *       // ce cercle a été cliqué !
- *   });
- * </pre>
- *
- * <h2>Comment ajouter des dépendances :</h2>
- * <p>Ajoutez-les en paramètre du constructeur avec {@code @Inject} :</p>
- * <pre>
- *   @Inject
- *   public GameService(BallService ball, MonAutreService autre) {
- *       this.ball = ball;
- *       this.autre = autre;
- *   }
- * </pre>
- * <p>Guice les injectera automatiquement.</p>
- */
-import java.util.Optional;
 
 public class GameService {
 
@@ -96,8 +58,13 @@ public class GameService {
 
     private void ajouterPing(Pane pane, double x, double y,
                               String description, Installation installation) {
+        // Couleur selon disponibilité : vert = libre, rouge = occupé
+        Color couleurInitiale = installation.isDisponible() 
+            ? Color.web("#22c55e")  // vert
+            : Color.web("#ef4444"); // rouge
+        
         // Le cercle (ping)
-        Circle ping = new Circle(x, y, 12, Color.web("#22c55e"));
+        Circle ping = new Circle(x, y, 12, couleurInitiale);
         ping.setStroke(Color.WHITE);
         ping.setStrokeWidth(2);
 
@@ -108,10 +75,18 @@ public class GameService {
 
         // Clic sur le ping
         ping.setOnMouseClicked(e -> afficherPopup(installation, ping));
-        ping.setOnMouseEntered(e -> ping.setFill(Color.web("#16a34a")));
+        ping.setOnMouseEntered(e -> {
+            if (installation.isDisponible()) {
+                ping.setFill(Color.web("#16a34a")); // vert foncé = disponible au survol
+            } else {
+                ping.setFill(Color.web("#dc2626")); // rouge foncé = occupé au survol
+            }
+        });
         ping.setOnMouseExited(e -> {
             if (installation.isDisponible()) {
-                ping.setFill(Color.web("#22c55e"));
+                ping.setFill(Color.web("#22c55e")); // vert = disponible
+            } else {
+                ping.setFill(Color.web("#ef4444")); // rouge = occupé
             }
         });
 
