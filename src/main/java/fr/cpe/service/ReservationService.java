@@ -41,12 +41,16 @@ public class ReservationService {
         // 4. Décrémenter les stocks
         stockService.consume(installation);
 
+        // 5. Lancer le timer de 60 secondes
+        installation.setTimeReservedUntil(System.currentTimeMillis() + 60000);
+
         return true;
     }
 
     // Appelé par le GameEngine quand le timer expire
     public void liberer(Installation installation) {
         installation.setDisponible(true);
+        installation.setTimeReservedUntil(-1);
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
         installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
     }

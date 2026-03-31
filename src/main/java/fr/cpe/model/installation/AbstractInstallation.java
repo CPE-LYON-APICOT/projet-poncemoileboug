@@ -14,6 +14,7 @@ public abstract class AbstractInstallation implements Installation {
     private String id;
     private double x;
     private double y;
+    private long timeReservedUntil = -1;
 
     private final List<InstallationObserver> observers = new ArrayList<>();
 
@@ -71,5 +72,15 @@ public abstract class AbstractInstallation implements Installation {
     @Override
     public double getY() {
         return this.y;
+    }
+
+    @Override
+    public long getTimeReservedUntil() {
+        return this.timeReservedUntil;
+    }
+
+    @Override
+    public void setTimeReservedUntil(long timeReservedUntil) {
+        this.timeReservedUntil = timeReservedUntil;
     }
 }

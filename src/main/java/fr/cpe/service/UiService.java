@@ -14,6 +14,7 @@ public class UiService {
 
     // On stocke les Nodes JavaFX ici
     private final Map<Installation, Circle> visualPings = new HashMap<>();
+    private final Map<Installation, Text> visualLabels = new HashMap<>();
 
     /**
      * Crée le visuel d'une installation une seule fois.
@@ -34,11 +35,12 @@ public class UiService {
         ping.setOnMouseClicked(e -> onClickAction.run());
 
         visualPings.put(inst, ping);
+        visualLabels.put(inst, label);
         pane.getChildren().addAll(ping, label);
     }
 
     /**
-     * Met à jour les couleurs sans rien recréer.
+     * Met à jour les couleurs et le timer sans rien recréer.
      * Appelé 60 fois par seconde par l'update du GameService.
      */
     public void rafraichirAffichage() {
@@ -49,6 +51,18 @@ public class UiService {
 
             if (!circle.getFill().equals(color)) {
                 circle.setFill(color);
+            }
+
+            Text label = visualLabels.get(inst);
+            if (label != null) {
+                if (inst.getTimeReservedUntil() > 0 && System.currentTimeMillis() < inst.getTimeReservedUntil()) {
+                    long remainingTime = (inst.getTimeReservedUntil() - System.currentTimeMillis()) / 1000;
+                    if (remainingTime >= 0) {
+                        label.setText(remainingTime + "s");
+                    }
+                } else {
+                    label.setText(inst.getDescription());
+                }
             }
         });
     }

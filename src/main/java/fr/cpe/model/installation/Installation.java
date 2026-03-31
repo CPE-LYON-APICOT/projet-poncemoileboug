@@ -18,4 +18,7 @@ public interface Installation {
     double getX();
     double getY();
     void setPosition(double x, double y);
+
+    long getTimeReservedUntil();
+    void setTimeReservedUntil(long timeReservedUntil);
 }

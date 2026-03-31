@@ -58,6 +58,13 @@ public class GameService {
     }
 
     public void update(double w, double h) {
+        // Vérifier si des réservations ont expiré
+        mapService.getInstallations().forEach((id, installation) -> {
+            if (installation.getTimeReservedUntil() > 0 && System.currentTimeMillis() > installation.getTimeReservedUntil()) {
+                reservationService.liberer(installation);
+            }
+        });
+
         // On demande juste à l'UI de se rafraîchir
         uiService.rafraichirAffichage();
     }

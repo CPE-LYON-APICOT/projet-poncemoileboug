@@ -64,4 +64,14 @@ public abstract class InstallationDecorator implements Installation {
     public void setPosition(double x, double y) {
         decorated.setPosition(x, y);
     }
+
+    @Override
+    public long getTimeReservedUntil() {
+        return decorated.getTimeReservedUntil();
+    }
+
+    @Override
+    public void setTimeReservedUntil(long timeReservedUntil) {
+        decorated.setTimeReservedUntil(timeReservedUntil);
+    }
 }
