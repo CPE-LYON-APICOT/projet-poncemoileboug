@@ -23,7 +23,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
-
 public class GameService {
 
     private final MapService mapService;
@@ -57,6 +56,13 @@ public class GameService {
     }
 
     public void update(double w, double h) {
+        // Vérifier si des réservations ont expiré
+        mapService.getInstallations().forEach((id, installation) -> {
+            if (installation.getTimeReservedUntil() > 0 && System.currentTimeMillis() > installation.getTimeReservedUntil()) {
+                reservationService.liberer(installation);
+            }
+        });
+
         // On demande juste à l'UI de se rafraîchir
         uiService.rafraichirAffichage();
     }
