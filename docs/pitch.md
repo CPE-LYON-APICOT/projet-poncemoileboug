@@ -6,7 +6,7 @@
 
 ToiletteMonLyon est une plateforme lyonnaise permettant de réserver en ligne des installations sanitaires publiques et privées à Lyon : cabines de toilettes, urinoirs et douches. Fini les files d'attente devant des toilettes incertaines, fini les cabines sales ou vides de papier : ToiletteMonLyon garantit une expérience propre, confortable et personnalisée, réservée à l'avance depuis son téléphone.
 
-Le concept s'adresse à tous les Lyonnais et touristes qui souhaitent avoir la certitude de trouver une installation disponible, propre, et adaptée à leurs besoins — qu'ils soient en balade sur la Presqu'île, en sortie à la Fête des Lumières, sportif cherchant une douche rapide après un footing, ou simplement en ville pour la journée.
+Le concept s'adresse à tous les Lyonnais et touristes qui souhaitent avoir la certitude de trouver une installation disponible, propre, et adaptée à leurs besoins - qu'ils soient en balade sur la Presqu'île, en sortie à la Fête des Lumières, sportif cherchant une douche rapide après un footing, ou simplement en ville pour la journée.
 
 ## Fonctionnalités principales
 
@@ -73,7 +73,7 @@ Un décompte indique le temps restant dans la cabine ou la douche. Pour les urin
 
 ## Évolutions envisagées
 
-### Fonctionnalité 7 — *Création de compte et profil client*
+### Fonctionnalité 7 - *Création de compte et profil client*
 
 L'utilisateur crée un compte en quelques secondes avec son adresse mail. Il reçoit un mail de bienvenue et peut accéder à son espace personnel : historique de réservations, points de fidélité, préférences de cabine. Un système de badges récompense les habitués ("Gone Régulier", "Roi de la Presqu'île"...).
 
@@ -107,5 +107,5 @@ Pour ancrer ToiletteMonLyon dans l'écosystème local :
 
 ## Valeur ajoutée
 
-ToiletteMonLyon résout un vrai problème du quotidien avec une approche fun, locale et moderne. C'est le premier service lyonnais à transformer une contrainte banale — qu'il s'agisse de toilettes, d'urinoirs ou de douches — en expérience mémorable. Le potentiel de viralité est fort et le modèle économique est simple : paiement à l'usage, abonnements, et commissions sur les partenariats locaux.
+ToiletteMonLyon résout un vrai problème du quotidien avec une approche fun, locale et moderne. C'est le premier service lyonnais à transformer une contrainte banale - qu'il s'agisse de toilettes, d'urinoirs ou de douches - en expérience mémorable. Le potentiel de viralité est fort et le modèle économique est simple : paiement à l'usage, abonnements, et commissions sur les partenariats locaux.
 
