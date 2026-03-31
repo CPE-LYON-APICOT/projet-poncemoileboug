@@ -9,7 +9,6 @@ import fr.cpe.model.installation.decorator.*;
 import fr.cpe.model.consommable.Consommable; // Importe l'interface Consommable
 import fr.cpe.model.observer.SanitaireEvent;
 import fr.cpe.service.PaymentService;
-import fr.cpe.service.PaymentStrategy;
 import fr.cpe.service.CardStrategy;
 import fr.cpe.service.LydiaStrategy;
 import fr.cpe.service.StockService;

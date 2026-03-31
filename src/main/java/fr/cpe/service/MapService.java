@@ -28,29 +28,27 @@ public class MapService {
     }
 
     private void initialiserInstallations() {
-        // x, y = position en pixels sur l'image 800x600
         ajouter("bellecour",
             new CabineStandard(Arrays.asList(new PapierToilette(20, 5), new Savon(15, 3))),
-            400, 300, "Cabine Standard — Bellecour"
+            400, 300
         );
         ajouter("presquile",
             new Urinoir(Arrays.asList()),
-            370, 220, "Urinoir — Presqu'île"
+            370, 220
         );
         ajouter("perrache",
             new Douche(Arrays.asList(new Shampoing(10, 2)), "Douche Perrache"),
-            340, 420, "Douche — Perrache"
+            340, 420
         );
         ajouter("partdieu",
             new CabineTurque(Arrays.asList(new PapierToilette(10, 3))),
-            560, 250, "Cabine Turque — Part-Dieu"
+            560, 250
         );
     }
 
-    private void ajouter(String id, Installation installation,
-                          double x, double y, String description) {
+    private void ajouter(String id, Installation installation, double x, double y) {
         stockService.register(installation);
-        installations.put(id, new Object[]{x, y, description, installation});
+        installations.put(id, new Object[]{x, y, installation.getDescription(), installation});
     }
 
     public Map<String, Object[]> getInstallations() {
@@ -58,7 +56,9 @@ public class MapService {
     }
 
     public Installation getInstallationById(String id) {
-        return (Installation) installations.get(id)[3];
+        Object[] data = installations.get(id);
+        if (data == null) throw new IllegalArgumentException("Installation inconnue : " + id);
+        return (Installation) data[3];
     }
 
     public ReservationService getReservationService() {

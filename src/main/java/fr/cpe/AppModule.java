@@ -11,9 +11,6 @@ package fr.cpe;
 
 import com.google.inject.AbstractModule;
 import fr.cpe.service.StockService;
-import fr.cpe.service.PaymentService;
-import fr.cpe.service.ReservationService;
-import fr.cpe.service.MaintenanceService;
 import fr.cpe.service.PaymentStrategy;
 import fr.cpe.service.CardStrategy;
 /**
