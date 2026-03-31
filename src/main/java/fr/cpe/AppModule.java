@@ -11,7 +11,7 @@ package fr.cpe;
 
 import com.google.inject.AbstractModule;
 import fr.cpe.service.StockService;
-import fr.cpe.service.PaymentStrategy;
+import fr.cpe.service.IPaymentStrategy;
 import fr.cpe.service.CardStrategy;
 /**
  * Module Guice — c'est ici que vous déclarez vos bindings (interface → implémentation).
@@ -49,6 +49,6 @@ public class AppModule extends AbstractModule {
         // StockService est un Singleton global — une seule instance pour toute l'app
         // asEagerSingleton() = instancié au démarrage, pas à la première injection
         bind(StockService.class).asEagerSingleton();
-        bind(PaymentStrategy.class).to(CardStrategy.class); // défaut = CB
+        bind(IPaymentStrategy.class).to(CardStrategy.class); // défaut = CB
     }
 }

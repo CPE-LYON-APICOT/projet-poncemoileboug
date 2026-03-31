@@ -1,13 +1,18 @@
 package fr.cpe.service;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import fr.cpe.model.installation.Installation;
 import fr.cpe.model.observer.SanitaireEvent;
 
+@Singleton
 public class ReservationService {
 
     private final StockService stockService;
     private final PaymentService paymentService;
 
+    @Inject
     public ReservationService(StockService stockService, PaymentService paymentService) {
         this.stockService = stockService;
         this.paymentService = paymentService;

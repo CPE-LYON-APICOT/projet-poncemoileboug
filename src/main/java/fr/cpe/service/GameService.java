@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import com.google.inject.Inject;
 
+import fr.cpe.engine.InputService;
 import fr.cpe.model.installation.Installation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -28,13 +29,27 @@ import javafx.scene.text.Text;
 
 public class GameService {
 
+    private Pane gamPane;
     private final MapService mapService;
-
-    public GameService(MapService mapService) {
-        this.mapService = mapService;
+    private StockService stockService;
+    private InputService inputService;
+    private PaymentService paymentService;
+    private ReservationService reservationService;
+@Inject
+    public GameService(MapService mapService,
+        StockService stockService,
+        InputService inputService,
+        PaymentService paymentService,
+        ReservationService reservationService) {
+            this.mapService = mapService;
+            this.stockService = stockService;
+            this.inputService = inputService;
+            this.paymentService = paymentService;
+            this.reservationService = reservationService;
     }
 
     public void init(Pane gamePane) {
+        this.gamPane = gamePane;
         // Image de fond
         Image image = new Image(getClass().getResourceAsStream("/lyon.png"));
         ImageView imageView = new ImageView(image);
@@ -42,18 +57,21 @@ public class GameService {
         imageView.setFitHeight(600);
         gamePane.getChildren().add(imageView);
 
-        // --- CORRECTION ICI : On utilise directement l'objet Installation ---
-        mapService.getInstallations().forEach((id, installation) -> {
-            // On utilise les getters que nous avons ajoutés à l'interface/classe abstraite
-            double x = installation.getX();
-            double y = installation.getY();
-            String description = installation.getDescription();
 
-            ajouterPing(gamePane, x, y, description, installation);
-        });
+
     }
 
     public void update(double w, double h) {
+        mapService.getInstallations().forEach((id, installation) -> {
+
+                    double x = installation.getX();
+                    double y = installation.getY();
+                    String description = installation.getDescription();
+
+                    ajouterPing(gamPane, x, y, description, installation);
+                });
+
+
         // Logique de mise à jour (vide pour l'instant)
     }
 
@@ -114,7 +132,7 @@ public class GameService {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             boolean ok = mapService.getReservationService().reserver(installation);
             if (ok) {
-                ping.setFill(Color.web("#ef4444")); // Mise à jour visuelle immédiate
+          //      ping.setFill(Color.web("#ef4444")); // Mise à jour visuelle immédiate
             }
             afficherResultat(ok, installation.getDescription());
         }

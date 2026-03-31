@@ -1,5 +1,5 @@
 package fr.cpe.service;
 
-public interface PaymentStrategy {
+public interface IPaymentStrategy {
     boolean processPayment(double amount);
 }
