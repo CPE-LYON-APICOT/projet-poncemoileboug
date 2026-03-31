@@ -13,8 +13,14 @@ package fr.cpe.service;
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
 import com.google.inject.Inject;
+import fr.cpe.model.installation.Installation;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
 /**
@@ -56,30 +62,92 @@ import javafx.scene.text.Text;
  * </pre>
  * <p>Guice les injectera automatiquement.</p>
  */
+import java.util.Optional;
+
 public class GameService {
 
-    private final BallService ballService;
+    private final MapService mapService;
 
     @Inject
-    public GameService(BallService ballService) {
-        this.ballService = ballService;
+    public GameService(MapService mapService) {
+        this.mapService = mapService;
     }
 
-    /**
-     * Initialise les éléments visuels du jeu (appelé une fois au démarrage).
-     */
     public void init(Pane gamePane) {
-        ballService.init(gamePane);
+        // Image de fond
+        Image image = new Image(getClass().getResourceAsStream("/lyon.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(800);
+        imageView.setFitHeight(600);
+        gamePane.getChildren().add(imageView);
 
-        Text text = new Text(20, 30, "Projet POO — À vous de jouer !");
-        text.setFill(Color.web("#cdd6f4"));
-        gamePane.getChildren().add(text);
+        // Ajoute les pings
+        mapService.getInstallations().forEach((id, data) -> {
+            double x = (double) data[0];
+            double y = (double) data[1];
+            String description = (String) data[2];
+            Installation installation = mapService.getInstallationById(id);
+
+            ajouterPing(gamePane, x, y, description, installation);
+        });
     }
 
-    /**
-     * Met à jour l'état du jeu (appelé à chaque frame).
-     */
-    public void update(double width, double height) {
-        ballService.update(width, height);
+    public void update(double w, double h) {}
+
+    private void ajouterPing(Pane pane, double x, double y,
+                              String description, Installation installation) {
+        // Le cercle (ping)
+        Circle ping = new Circle(x, y, 12, Color.web("#22c55e"));
+        ping.setStroke(Color.WHITE);
+        ping.setStrokeWidth(2);
+
+        // Le label
+        Text label = new Text(x + 15, y + 5, description);
+        label.setFill(Color.WHITE);
+        label.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
+
+        // Clic sur le ping
+        ping.setOnMouseClicked(e -> afficherPopup(installation, ping));
+        ping.setOnMouseEntered(e -> ping.setFill(Color.web("#16a34a")));
+        ping.setOnMouseExited(e -> {
+            if (installation.isDisponible()) {
+                ping.setFill(Color.web("#22c55e"));
+            }
+        });
+
+        pane.getChildren().addAll(ping, label);
+    }
+
+    private void afficherPopup(Installation installation, Circle ping) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Réservation");
+        alert.setHeaderText(installation.getDescription());
+
+        String statut = installation.isDisponible() ? "Disponible" : "Occupée";
+        alert.setContentText(
+            statut + "\n" +
+            "Prix : " + installation.getPrix() + "€\n\n" +
+            "Voulez-vous réserver ?"
+        );
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean ok = mapService.getReservationService().reserver(installation);
+            if (ok) {
+                ping.setFill(Color.web("#ef4444")); // rouge = occupé
+            }
+            afficherResultat(ok, installation.getDescription());
+        }
+    }
+
+    private void afficherResultat(boolean ok, String description) {
+        Alert resultat = new Alert(ok ? Alert.AlertType.INFORMATION : Alert.AlertType.WARNING);
+        resultat.setTitle(ok ? "Confirmée" : "Impossible");
+        resultat.setHeaderText(null);
+        resultat.setContentText(ok
+            ? "✅ " + description + " réservée !"
+            : "❌ Déjà occupée ou paiement refusé."
+        );
+        resultat.show();
     }
 }

@@ -8,6 +8,12 @@ import fr.cpe.model.installation.*; // Importe toutes les installations (CabineT
 import fr.cpe.model.installation.decorator.*;
 import fr.cpe.model.consommable.Consommable; // Importe l'interface Consommable
 import fr.cpe.model.observer.SanitaireEvent;
+import fr.cpe.service.PaymentService;
+import fr.cpe.service.PaymentStrategy;
+import fr.cpe.service.CardStrategy;
+import fr.cpe.service.LydiaStrategy;
+import fr.cpe.service.StockService;
+import fr.cpe.service.ReservationService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
@@ -116,4 +122,78 @@ class AppTest {
         urinoir.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
         assertTrue(alerteRecue[0], "L'urinoir devrait avoir prévenu la maintenance via le pattern Observer.");
     }
+
+
+    // Test 1 — PaymentService avec CardStrategy par défaut
+    @Test
+    void testPaiementCB() {
+        PaymentService paymentService = new PaymentService(new CardStrategy());
+        assertTrue(paymentService.processPayment(1.50));
+    }
+
+    // Test 2 — PaymentService avec LydiaStrategy
+    @Test
+    void testPaiementLydia() {
+        PaymentService paymentService = new PaymentService(new LydiaStrategy());
+        assertTrue(paymentService.processPayment(3.00));
+    }
+
+    // Test 3 — Changement de stratégie à la volée
+    @Test
+    void testChangementStrategie() {
+        PaymentService paymentService = new PaymentService(new CardStrategy());
+        assertTrue(paymentService.processPayment(1.50));
+
+        paymentService.setStrategy(new LydiaStrategy());
+        assertTrue(paymentService.processPayment(1.50)); // même résultat, autre stratégie
+    }
+
+    // Test 4 — ReservationService complet
+    @Test
+    void testReservationComplete() {
+        StockService stockService = new StockService();
+        PaymentService paymentService = new PaymentService(new CardStrategy());
+        ReservationService reservationService = new ReservationService(stockService, paymentService);
+
+        Installation cabine = new CabineStandard(new ArrayList<>());
+        stockService.register(cabine);
+
+        assertTrue(cabine.isDisponible());
+        assertTrue(reservationService.reserver(cabine));
+        assertFalse(cabine.isDisponible()); // occupée après réservation
+    }
+
+    // Test 5 — Réservation refusée si déjà occupée
+    @Test
+    void testReservationDejaOccupee() {
+        StockService stockService = new StockService();
+        PaymentService paymentService = new PaymentService(new CardStrategy());
+        ReservationService reservationService = new ReservationService(stockService, paymentService);
+
+        Installation cabine = new CabineStandard(new ArrayList<>());
+        cabine.setDisponible(false); // déjà occupée
+
+        assertFalse(reservationService.reserver(cabine));
+    }
+
+    // Test 6 — Libération remet la cabine disponible
+    @Test
+    void testLiberation() {
+        StockService stockService = new StockService();
+        PaymentService paymentService = new PaymentService(new CardStrategy());
+        ReservationService reservationService = new ReservationService(stockService, paymentService);
+
+        Installation cabine = new CabineStandard(new ArrayList<>());
+        reservationService.reserver(cabine);
+        assertFalse(cabine.isDisponible());
+
+        reservationService.liberer(cabine);
+        assertTrue(cabine.isDisponible()); // libre après libération
+    }
+
+
+
+
+
+
 }
