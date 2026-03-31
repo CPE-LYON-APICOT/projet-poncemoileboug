@@ -9,7 +9,6 @@ import fr.cpe.model.installation.decorator.LumiereDecorator;
 import fr.cpe.model.installation.decorator.OlDecorator;
 import fr.cpe.model.installation.decorator.VipDecorator;
 import fr.cpe.model.observer.SanitaireEvent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
