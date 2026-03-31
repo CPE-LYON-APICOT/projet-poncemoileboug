@@ -36,7 +36,7 @@ public abstract class AbstractInstallation implements Installation {
     public List<Consommable> getConsommables() {
         return consommables;
     }
-
+    @Override
     public void addObserver(InstallationObserver observer) {
         if (observer != null && !observers.contains(observer)) {
             observers.add(observer);
