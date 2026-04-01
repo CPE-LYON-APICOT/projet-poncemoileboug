@@ -1,7 +1,7 @@
 package fr.cpe.model.consommable;
 
 public class Desodorisant implements IConsommable {
-    private final String nom = "Cube desodorisant";
+    private final String nom = "Desodorisant";
     private int quantite;
     private final int seuilAlerte;
 
