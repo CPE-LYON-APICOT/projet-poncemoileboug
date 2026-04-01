@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import com.google.inject.Inject;
 
+import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.installation.IInstallation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -58,48 +59,60 @@ public class GameService {
     public void update(double w, double h) {
         // Vérifier si des réservations ont expiré
         mapService.getInstallations().forEach((id, installation) -> {
-            if (installation.getTimeReservedUntil() > 0 && System.currentTimeMillis() > installation.getTimeReservedUntil()) {
+            // On ne libère que si l'état est RESERVE et que le temps est écoulé
+            if (installation.getEtat() == EtatInstallation.RESERVE
+                && installation.getTimeReservedUntil() > 0
+                && System.currentTimeMillis() > installation.getTimeReservedUntil()) {
+
                 reservationService.liberer(installation);
             }
         });
 
-        // On demande juste à l'UI de se rafraîchir
         uiService.rafraichirAffichage();
     }
 
 
     private void tenterReservation(IInstallation inst) {
-        // 1. Si c'est déjà occupé, on prévient juste
-        if (!inst.isDisponible()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Indisponible");
-            alert.setHeaderText(null);
-            alert.setContentText("Cette installation est déjà occupée !");
-            alert.show();
+        // 1. Gestion des différents états pour le feedback utilisateur
+        if (inst.getEtat() == EtatInstallation.EN_MAINTENANCE) {
+            afficherAlerte("Indisponible", "Cette installation est actuellement en maintenance.", Alert.AlertType.WARNING);
             return;
         }
 
-        // 2. Création de la popup de confirmation
+        if (inst.getEtat() == EtatInstallation.RESERVE) {
+            afficherAlerte("Indisponible", "Cette installation est déjà occupée !", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // 2. Création de la popup de confirmation (uniquement si LIBRE)
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
         confirmation.setTitle("Réservation");
         confirmation.setHeaderText(inst.getDescription());
-        confirmation.setContentText("Prix : " + inst.getPrix() + "€\nVoulez-vous réserver ?");
+        confirmation.setContentText("Prix de base : " + inst.getPrix() + "€\nVoulez-vous personnaliser et réserver ?");
 
-        // 3. On attend la réponse de l'utilisateur
         Optional<ButtonType> result = confirmation.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // L'utilisateur a cliqué sur OK, on procède à la réservation
             boolean ok = reservationService.reserver(inst);
 
-            // 4. Petit feedback pour savoir si ça a marché (budget, stock...)
-            Alert bilan = new Alert(ok ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
-            bilan.setTitle(ok ? "Succès" : "Erreur");
-            bilan.setHeaderText(null);
-            bilan.setContentText(ok
-                ? "✅ Réservation confirmée !"
-                : "❌ Impossible de réserver (fonds insuffisants ou stock vide).");
-            bilan.show();
+            // 4. Feedback final
+            if (ok) {
+                afficherAlerte("Succès", "✅ Réservation confirmée ! Profitez bien.", Alert.AlertType.INFORMATION);
+            } else {
+                // Le paiement a pu échouer ou l'utilisateur a annulé dans le sous-menu
+                System.out.println("[GAME] Réservation annulée ou échec paiement.");
+            }
         }
+    }
+
+    /**
+     * Méthode utilitaire pour éviter de dupliquer le code des alertes
+     */
+    private void afficherAlerte(String titre, String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(titre);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
     }
 }

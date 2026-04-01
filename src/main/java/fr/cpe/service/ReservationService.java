@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import fr.cpe.App;
+import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.installation.IInstallation;
 import fr.cpe.model.installation.decorator.EcoDecorator;
 import fr.cpe.model.installation.decorator.GamerDecorator;
@@ -37,10 +38,10 @@ public class ReservationService {
 
     public boolean reserver(IInstallation installation) {
         // 1. Vérifier la disponibilité initiale
-        if (!installation.isDisponible()) {
-            System.out.println("[RESERVATION] Installation indisponible : " + installation.getDescription());
-            return false;
-        }
+        if (!installation.isLibre()) {
+            System.out.println("[RESERVATION] Installation non disponible (Etat: " + installation.getEtat() + ")");
+        return false;
+    }
 
         // 2. Choix des options (Décorateurs)
         // Note : En test JUnit, si Platform.startup() n'est pas fait, cela plantera ici.
@@ -77,7 +78,7 @@ public class ReservationService {
 
         if (paiementOk) {
             // 5. SI PAIEMENT RÉUSSI : On valide la réservation
-            installation.setDisponible(false);
+            installation.setEtat(EtatInstallation.RESERVE);
 
             // Consommation des stocks (papier, savon, etc.)
             stockService.consume(installation);
@@ -138,7 +139,7 @@ public class ReservationService {
     }
 
     public void liberer(IInstallation installation) {
-        installation.setDisponible(true);
+        installation.setEtat(EtatInstallation.LIBRE);
         installation.setTimeReservedUntil(-1);
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
         installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);

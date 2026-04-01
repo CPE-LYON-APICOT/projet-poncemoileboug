@@ -2,6 +2,7 @@ package fr.cpe.model.installation.decorator;
 
 import java.util.List;
 
+import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.consommable.IConsommable;
 import fr.cpe.model.installation.IInstallation;
 import fr.cpe.model.observer.IInstallationObserver;
@@ -31,13 +32,13 @@ public abstract class InstallationDecorator implements IInstallation {
     }
 
     @Override
-    public boolean isDisponible() {
-        return decorated.isDisponible();
+    public EtatInstallation getEtat() {
+        return decorated.getEtat();
     }
 
     @Override
-    public void setDisponible(boolean disponible) {
-        decorated.setDisponible(disponible);
+    public void setEtat(EtatInstallation etat) {
+        decorated.setEtat(etat);
     }
 
     @Override

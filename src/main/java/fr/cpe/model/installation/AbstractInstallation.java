@@ -3,6 +3,7 @@ package fr.cpe.model.installation;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.consommable.IConsommable;
 import fr.cpe.model.observer.IInstallationObserver;
 import fr.cpe.model.observer.SanitaireEvent;
@@ -26,14 +27,16 @@ public abstract class AbstractInstallation implements IInstallation {
         }
     }
 
+    private EtatInstallation etat = EtatInstallation.LIBRE;
+
     @Override
-    public boolean isDisponible() {
-        return disponible;
+    public EtatInstallation getEtat() {
+        return this.etat;
     }
 
     @Override
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
+    public void setEtat(EtatInstallation etat) {
+        this.etat = etat;
     }
 
     @Override

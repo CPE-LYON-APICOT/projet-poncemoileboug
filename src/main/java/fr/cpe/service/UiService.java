@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.google.inject.Singleton;
 
+import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.installation.IInstallation;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -82,11 +83,16 @@ public class UiService {
         visualPings.forEach((inst, circle) -> {
             // Mise à jour des couleurs
             Color color;
-            if (inst.isDisponible()) {
-                color = Color.web("#22c55e"); // Vert
-            } else {
+
+
+            if (inst.getEtat() == EtatInstallation.LIBRE) {
+                color = Color.web("#22c55e");
+            } else if (inst.getEtat() == EtatInstallation.RESERVE) {
                 color = Color.web("#ef4444"); // Rouge
+            } else {
+                color = Color.web("#e0cb0a");
             }
+
             if (!circle.getFill().equals(color)) {
                 circle.setFill(color);
             }

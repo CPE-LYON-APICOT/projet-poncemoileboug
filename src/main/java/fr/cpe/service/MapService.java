@@ -2,6 +2,8 @@ package fr.cpe.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.consommable.PapierToilette;
 import fr.cpe.model.consommable.Savon;
 import fr.cpe.model.consommable.Shampoing;
@@ -67,9 +69,14 @@ public class MapService {
             new CabineTurque(Arrays.asList(new PapierToilette(10, 3))),
             620, 230
         );
+        IInstallation doucheGrangeBlanche = new Douche(Arrays.asList(new Shampoing(15, 5)), "Douche Hôpital");
+
+        // ON LA PASSE EN MAINTENANCE AVANT DE L'AJOUTER
+        doucheGrangeBlanche.setEtat(EtatInstallation.EN_MAINTENANCE);
+
         ajouter("grange_blanche",
-            new Douche(Arrays.asList(new Shampoing(15, 5)), "Douche Hôpital"),
-            630, 400 // Très à droite
+            doucheGrangeBlanche,
+            630, 400
         );
 
         // --- SUD (Bas de la carte) ---
