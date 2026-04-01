@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.google.inject.Singleton;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -18,16 +18,16 @@ import javafx.scene.text.Text;
 public class UiService {
 
     // On stocke les Nodes JavaFX ici
-    private final Map<Installation, Circle> visualPings = new HashMap<>();
-    private final Map<Installation, Text> visualLabels = new HashMap<>();
-    private final Map<Installation, java.util.List<String>> decorations = new HashMap<>();
-    private final Map<Installation, HBox> decorationContainers = new HashMap<>();
+    private final Map<IInstallation, Circle> visualPings = new HashMap<>();
+    private final Map<IInstallation, Text> visualLabels = new HashMap<>();
+    private final Map<IInstallation, java.util.List<String>> decorations = new HashMap<>();
+    private final Map<IInstallation, HBox> decorationContainers = new HashMap<>();
     private Pane gamePane;
 
     /**
      * Crée le visuel d'une installation une seule fois.
      */
-    public void dessinerInstallation(Pane pane, Installation inst, Runnable onClickAction) {
+    public void dessinerInstallation(Pane pane, IInstallation inst, Runnable onClickAction) {
         this.gamePane = pane;
         double x = inst.getX();
         double y = inst.getY();
@@ -51,8 +51,8 @@ public class UiService {
     /**
      * Enregistre une décoration (thème) pour une installation
      */
-    public void ajouterDecoration(Installation installation, String type) {
-        
+    public void ajouterDecoration(IInstallation installation, String type) {
+
         if (!decorations.containsKey(installation)) {
             decorations.put(installation, new java.util.ArrayList<>());
         }
@@ -62,7 +62,7 @@ public class UiService {
     /**
      * Crée un HBox pour afficher les images de décoration côte à côte
      */
-    private void initialiserContainerDecoration(Installation inst) {
+    private void initialiserContainerDecoration(IInstallation inst) {
         HBox container = new HBox(5); // Espacement de 5px entre les images
         container.setLayoutX(inst.getX() - 15); // Centrer sous le ping
         container.setLayoutY(inst.getY() + 20);
@@ -70,7 +70,7 @@ public class UiService {
         decorationContainers.put(inst, container);
     }
 
-    public void setDecorations(Installation installation, List<String> types) {
+    public void setDecorations(IInstallation installation, List<String> types) {
         decorations.put(installation, types);
     }
 
@@ -111,10 +111,10 @@ public class UiService {
                 if (!decorationContainers.containsKey(inst)) {
                     initialiserContainerDecoration(inst);
                 }
-                
+
                 HBox container = decorationContainers.get(inst);
                 container.getChildren().clear(); // Vider avant de remplir
-                
+
                 // Ajouter les images au conteneur
                 for (String type : deco) {
                     try {

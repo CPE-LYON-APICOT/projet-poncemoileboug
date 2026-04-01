@@ -1,12 +1,12 @@
 package fr.cpe.model.installation;
 
 import java.util.List;
-import fr.cpe.model.consommable.Consommable;
+import fr.cpe.model.consommable.IConsommable;
 
 public class CabineTurque extends AbstractInstallation {
     private static final double PRIX_TURQUE = 1.00;
 
-    public CabineTurque(List<Consommable> lesConsommables) {
+    public CabineTurque(List<IConsommable> lesConsommables) {
         super(lesConsommables);
     }
 

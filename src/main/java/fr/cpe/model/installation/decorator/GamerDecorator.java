@@ -1,9 +1,9 @@
 package fr.cpe.model.installation.decorator;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 
 public class GamerDecorator extends InstallationDecorator {
-    public GamerDecorator(Installation decorated) {
+    public GamerDecorator(IInstallation decorated) {
         super(decorated);
     }
 

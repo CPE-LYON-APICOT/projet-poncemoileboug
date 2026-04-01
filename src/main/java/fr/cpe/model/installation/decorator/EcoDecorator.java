@@ -1,9 +1,9 @@
 package fr.cpe.model.installation.decorator;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 
 public class EcoDecorator extends InstallationDecorator {
-        public EcoDecorator(Installation decorated) {
+        public EcoDecorator(IInstallation decorated) {
         super(decorated);
     }
 

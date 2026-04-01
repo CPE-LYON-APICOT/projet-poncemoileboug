@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import com.google.inject.Inject;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
@@ -68,7 +68,7 @@ public class GameService {
     }
 
 
-    private void tenterReservation(Installation inst) {
+    private void tenterReservation(IInstallation inst) {
         // 1. Si c'est déjà occupé, on prévient juste
         if (!inst.isDisponible()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);

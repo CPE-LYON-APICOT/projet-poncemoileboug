@@ -3,22 +3,22 @@ package fr.cpe.model.installation;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.cpe.model.consommable.Consommable;
-import fr.cpe.model.observer.InstallationObserver;
+import fr.cpe.model.consommable.IConsommable;
+import fr.cpe.model.observer.IInstallationObserver;
 import fr.cpe.model.observer.SanitaireEvent;
 
-public abstract class AbstractInstallation implements Installation {
+public abstract class AbstractInstallation implements IInstallation {
 
-    protected List<Consommable> consommables;
+    protected List<IConsommable> consommables;
     protected boolean disponible = true;
     private String id;
     private double x;
     private double y;
     private long timeReservedUntil = -1;
 
-    private final List<InstallationObserver> observers = new ArrayList<>();
+    private final List<IInstallationObserver> observers = new ArrayList<>();
 
-    public AbstractInstallation(List<Consommable> consommables) {
+    public AbstractInstallation(List<IConsommable> consommables) {
         if (consommables != null) {
             this.consommables = consommables;
         } else {
@@ -37,11 +37,11 @@ public abstract class AbstractInstallation implements Installation {
     }
 
     @Override
-    public List<Consommable> getConsommables() {
+    public List<IConsommable> getConsommables() {
         return consommables;
     }
     @Override
-    public void addObserver(InstallationObserver observer) {
+    public void addObserver(IInstallationObserver observer) {
         if (observer != null && !observers.contains(observer)) {
             observers.add(observer);
         }
@@ -49,7 +49,7 @@ public abstract class AbstractInstallation implements Installation {
 
     @Override
     public void notifyObservers(SanitaireEvent event) {
-        for (InstallationObserver observer : observers) {
+        for (IInstallationObserver observer : observers) {
             observer.onEvent(this, event);
         }
     }

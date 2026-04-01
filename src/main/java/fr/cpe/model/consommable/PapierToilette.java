@@ -1,6 +1,6 @@
 package fr.cpe.model.consommable;
 
-public class PapierToilette implements Consommable {
+public class PapierToilette implements IConsommable {
     private final String nom = "Papier toilette"; // le papier toilette s'appellera tjrs papier toilette
     private int quantite;
     private final int seuilAlerte;

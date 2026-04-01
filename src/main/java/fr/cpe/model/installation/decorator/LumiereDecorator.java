@@ -1,10 +1,10 @@
 package fr.cpe.model.installation.decorator;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 
 public class LumiereDecorator extends InstallationDecorator {
 
-    public LumiereDecorator(Installation decorated) {
+    public LumiereDecorator(IInstallation decorated) {
         super(decorated);
     }
 

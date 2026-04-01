@@ -19,6 +19,8 @@
 
 Du coup pour les PMR l'installation est gratuites mais les thèmes payants
 
+cela : - Pass Journée - accès illimité toute la journée pour un tarif fixe pas ilplémenter car ...
+
 ### Fonctionnalité 4 — *Nom*
 
 ## Ce qui n'a pas été livré (et pourquoi)

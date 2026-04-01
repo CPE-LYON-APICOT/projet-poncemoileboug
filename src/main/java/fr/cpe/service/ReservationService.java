@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import fr.cpe.App;
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 import fr.cpe.model.installation.decorator.EcoDecorator;
 import fr.cpe.model.installation.decorator.GamerDecorator;
 import fr.cpe.model.installation.decorator.LumiereDecorator;
@@ -35,7 +35,7 @@ public class ReservationService {
         this.uiService = uiService;
     }
 
-    public boolean reserver(Installation installation) {
+    public boolean reserver(IInstallation installation) {
         // 1. Vérifier la disponibilité initiale
         if (!installation.isDisponible()) {
             System.out.println("[RESERVATION] Installation indisponible : " + installation.getDescription());
@@ -44,7 +44,7 @@ public class ReservationService {
 
         // 2. Choix des options (Décorateurs)
         // Note : En test JUnit, si Platform.startup() n'est pas fait, cela plantera ici.
-        Installation installationChoisie = afficherDialogueOptions(installation);
+        IInstallation installationChoisie = afficherDialogueOptions(installation);
 
         // 3. Choix du mode de paiement et configuration de la stratégie
         ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("CB", "Lydia", "PMR");
@@ -96,8 +96,8 @@ public class ReservationService {
         }
     }
 
-    private Installation afficherDialogueOptions(Installation base) {
-        Dialog<Installation> dialog = new Dialog<>();
+    private IInstallation afficherDialogueOptions(IInstallation base) {
+        Dialog<IInstallation> dialog = new Dialog<>();
         dialog.setTitle("Options de confort");
         dialog.setHeaderText("Personnalisez votre expérience");
 
@@ -113,7 +113,7 @@ public class ReservationService {
 
         dialog.setResultConverter(button -> {
             if (button == ButtonType.OK) {
-                Installation result = base;
+                IInstallation result = base;
                 if (cbLumiere.isSelected()) result = new LumiereDecorator(result);
                 if (cbOl.isSelected()) result = new OlDecorator(result);
                 if (cbVIP.isSelected()) result = new VipDecorator(result);
@@ -137,7 +137,7 @@ public class ReservationService {
         return dialog.showAndWait().orElse(base);
     }
 
-    public void liberer(Installation installation) {
+    public void liberer(IInstallation installation) {
         installation.setDisponible(true);
         installation.setTimeReservedUntil(-1);
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);

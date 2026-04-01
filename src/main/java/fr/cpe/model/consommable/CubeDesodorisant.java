@@ -1,6 +1,6 @@
 package fr.cpe.model.consommable;
 
-public class CubeDesodorisant implements Consommable {
+public class CubeDesodorisant implements IConsommable {
     private final String nom = "Cube desodorisant";
     private int quantite;
     private final int seuilAlerte;

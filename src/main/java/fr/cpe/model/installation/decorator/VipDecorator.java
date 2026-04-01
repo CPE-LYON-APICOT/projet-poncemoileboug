@@ -1,11 +1,11 @@
 package fr.cpe.model.installation.decorator;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 
 public class VipDecorator extends InstallationDecorator {
 
     // private
-    public VipDecorator(Installation decorated) {
+    public VipDecorator(IInstallation decorated) {
         super(decorated);
     }
 

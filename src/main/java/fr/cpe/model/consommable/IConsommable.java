@@ -1,6 +1,6 @@
 package fr.cpe.model.consommable;
 
-public interface Consommable {
+public interface IConsommable {
     String getNom();
     int getQuantite();
     int getSeuilAlerte();

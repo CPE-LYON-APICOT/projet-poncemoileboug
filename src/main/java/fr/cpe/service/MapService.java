@@ -15,7 +15,7 @@ import java.util.Map;
 public class MapService {
 
     // On utilise directement Installation comme valeur dans la Map
-    private final Map<String, Installation> lesInstallations = new HashMap<>();
+    private final Map<String, IInstallation> lesInstallations = new HashMap<>();
 
     private final StockService stockService;
     private final ReservationService reservationService;
@@ -83,7 +83,7 @@ public class MapService {
         );
     }
 
-    private void ajouter(String id, Installation installation, double x, double y) {
+    private void ajouter(String id, IInstallation installation, double x, double y) {
         installation.setPosition(x, y);
 
         if (installation instanceof AbstractInstallation) {
@@ -95,12 +95,12 @@ public class MapService {
         lesInstallations.put(id, installation);
     }
 
-    public Map<String, Installation> getInstallations() {
+    public Map<String, IInstallation> getInstallations() {
         return lesInstallations;
     }
 
-    public Installation getInstallationById(String id) {
-        Installation inst = lesInstallations.get(id);
+    public IInstallation getInstallationById(String id) {
+        IInstallation inst = lesInstallations.get(id);
         if (inst == null) throw new IllegalArgumentException("Installation inconnue : " + id);
         return inst;
     }

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import fr.cpe.model.installation.*;
 import fr.cpe.model.installation.decorator.*;
-import fr.cpe.model.consommable.Consommable;
+import fr.cpe.model.consommable.IConsommable;
 import fr.cpe.service.PaymentService;
 import fr.cpe.service.CardStrategy;
 import fr.cpe.service.StockService;
@@ -48,13 +48,13 @@ class AppTest {
 
     @Test
     void testInstallationSimple() {
-        Installation cabine = new CabineStandard(new ArrayList<>());
+        IInstallation cabine = new CabineStandard(new ArrayList<>());
         assertEquals(1.50, cabine.getPrix(), 0.001);
     }
 
     @Test
     void testCabineLuxeCumul() {
-        Installation maCabineLuxe = new OlDecorator(
+        IInstallation maCabineLuxe = new OlDecorator(
             new VipDecorator(
                 new CabineStandard(new ArrayList<>())
             )
@@ -62,18 +62,18 @@ class AppTest {
         assertEquals(5.0, maCabineLuxe.getPrix(), 0.001);
     }
 
-    private final List<Consommable> emptyList = new ArrayList<>();
+    private final List<IConsommable> emptyList = new ArrayList<>();
 
     @Test
     void testCabineTurque() {
-        Installation turque = new CabineTurque(emptyList);
+        IInstallation turque = new CabineTurque(emptyList);
         assertEquals(1.00, turque.getPrix(), 0.001);
         assertTrue(turque.isDisponible());
     }
 
     @Test
     void testDisponibilitéCommune() {
-        Installation instal = new CabineStandard(emptyList);
+        IInstallation instal = new CabineStandard(emptyList);
         assertTrue(instal.isDisponible());
         instal.setDisponible(false);
         assertFalse(instal.isDisponible());
@@ -97,7 +97,7 @@ class AppTest {
         PaymentService paymentService = new PaymentService(new CardStrategy());
         ReservationService reservationService = new ReservationService(stockService, paymentService);
 
-        Installation cabine = new CabineStandard(new ArrayList<>());
+        IInstallation cabine = new CabineStandard(new ArrayList<>());
         stockService.register(cabine);
 
         // Simulation manuelle (sans appeler reserver() qui ouvre un Dialog)
@@ -121,7 +121,7 @@ class AppTest {
         PaymentService paymentService = new PaymentService(new CardStrategy());
         ReservationService reservationService = new ReservationService(stockService, paymentService);
 
-        Installation cabine = new CabineStandard(new ArrayList<>());
+        IInstallation cabine = new CabineStandard(new ArrayList<>());
 
         // On occupe la cabine
         cabine.setDisponible(false);

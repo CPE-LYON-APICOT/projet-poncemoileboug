@@ -2,16 +2,16 @@ package fr.cpe.model.installation.decorator;
 
 import java.util.List;
 
-import fr.cpe.model.consommable.Consommable;
-import fr.cpe.model.installation.Installation;
-import fr.cpe.model.observer.InstallationObserver;
+import fr.cpe.model.consommable.IConsommable;
+import fr.cpe.model.installation.IInstallation;
+import fr.cpe.model.observer.IInstallationObserver;
 import fr.cpe.model.observer.SanitaireEvent;
 
-public abstract class InstallationDecorator implements Installation {
+public abstract class InstallationDecorator implements IInstallation {
 
-    protected Installation decorated; // L'instance décorée (protected pour être accessible par les sous-classes)
+    protected IInstallation decorated; // L'instance décorée (protected pour être accessible par les sous-classes)
 
-    public InstallationDecorator(Installation decorated) {
+    public InstallationDecorator(IInstallation decorated) {
         this.decorated = decorated;
     }
 
@@ -26,7 +26,7 @@ public abstract class InstallationDecorator implements Installation {
     }
 
     @Override
-    public List<Consommable> getConsommables() {
+    public List<IConsommable> getConsommables() {
         return decorated.getConsommables();
     }
 
@@ -46,7 +46,7 @@ public abstract class InstallationDecorator implements Installation {
     }
 
     @Override
-    public void addObserver(InstallationObserver observer) {
+    public void addObserver(IInstallationObserver observer) {
         decorated.addObserver(observer);
     }
 

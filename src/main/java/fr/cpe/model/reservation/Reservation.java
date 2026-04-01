@@ -2,7 +2,7 @@ package fr.cpe.model.reservation;
 
 import java.time.LocalDateTime;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 import fr.cpe.model.user.User;
 
 /**
@@ -31,7 +31,7 @@ public class Reservation {
 
     private final String reservationId;
     private final User user;
-    private final Installation installation;
+    private final IInstallation installation;
     private final LocalDateTime createdAt;
     private final int durationMinutes;
     private final String qrCode;
@@ -47,7 +47,7 @@ public class Reservation {
      * @param durationMinutes    La durée de la réservation en minutes
      * @param qrCode             Code QR unique pour accéder à l'installation
      */
-    public Reservation(String reservationId, User user, Installation installation,
+    public Reservation(String reservationId, User user, IInstallation installation,
                       LocalDateTime createdAt, int durationMinutes, String qrCode) {
         this.reservationId = reservationId;
         this.user = user;
@@ -68,7 +68,7 @@ public class Reservation {
         return user;
     }
 
-    public Installation getInstallation() {
+    public IInstallation getInstallation() {
         return installation;
     }
 

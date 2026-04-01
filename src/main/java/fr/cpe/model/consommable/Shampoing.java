@@ -1,6 +1,6 @@
 package fr.cpe.model.consommable;
 
-public class Shampoing implements Consommable {
+public class Shampoing implements IConsommable {
     private final String nom = "Shampoing";
     private int quantite;
     private final int seuilAlerte;

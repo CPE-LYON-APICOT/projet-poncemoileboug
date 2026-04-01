@@ -1,10 +1,10 @@
 package fr.cpe.model.installation.decorator;
 
-import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.IInstallation;
 
 public class OlDecorator extends InstallationDecorator {
 
-    public OlDecorator(Installation decorated) {
+    public OlDecorator(IInstallation decorated) {
         super(decorated);
     }
 
