@@ -43,6 +43,7 @@ public class ReservationService {
         // 2. Choix des options (Décorateurs)
         // Note : En test JUnit, si Platform.startup() n'est pas fait, cela plantera ici.
         Installation installationChoisie = afficherDialogueOptions(installation);
+        enregistrerDecorateurs(installation, installationChoisie, uiService);
 
         // 3. Choix du mode de paiement et configuration de la stratégie
         ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("CB", "Lydia");
