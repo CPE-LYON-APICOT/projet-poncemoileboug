@@ -8,6 +8,7 @@ import com.google.inject.Singleton;
 
 import fr.cpe.model.installation.Installation;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -20,7 +21,7 @@ public class UiService {
     private final Map<Installation, Circle> visualPings = new HashMap<>();
     private final Map<Installation, Text> visualLabels = new HashMap<>();
     private final Map<Installation, java.util.List<String>> decorations = new HashMap<>();
-    private final Map<Installation, Map<String, ImageView>> decorationImages = new HashMap<>();
+    private final Map<Installation, HBox> decorationContainers = new HashMap<>();
     private Pane gamePane;
 
     /**
@@ -59,6 +60,21 @@ public class UiService {
     }
 
     /**
+     * Crée un HBox pour afficher les images de décoration côte à côte
+     */
+    private void initialiserContainerDecoration(Installation inst) {
+        HBox container = new HBox(5); // Espacement de 5px entre les images
+        container.setLayoutX(inst.getX() - 15); // Centrer sous le ping
+        container.setLayoutY(inst.getY() + 20);
+        gamePane.getChildren().add(container);
+        decorationContainers.put(inst, container);
+    }
+
+    public void setDecorations(Installation installation, List<String> types) {
+        decorations.put(installation, types);
+    }
+
+    /**
      * Met à jour les couleurs et le timer sans rien recréer.
      * Appelé 60 fois par seconde par l'update du GameService.
      */
@@ -91,23 +107,23 @@ public class UiService {
             // Mise à jour des images de décoration
             List<String> deco = decorations.get(inst);
             if (deco != null && !deco.isEmpty()) {
-                // Créer la Map pour cette installation si elle n'existe pas
-                if (!decorationImages.containsKey(inst)) {
-                    decorationImages.put(inst, new HashMap<>());
+                // Initialiser le conteneur si ce n'est pas déjà fait
+                if (!decorationContainers.containsKey(inst)) {
+                    initialiserContainerDecoration(inst);
                 }
                 
-                Map<String, ImageView> images = decorationImages.get(inst);
+                HBox container = decorationContainers.get(inst);
+                container.getChildren().clear(); // Vider avant de remplir
                 
-                // Pour chaque décoration, créer l'image si elle n'existe pas
+                // Ajouter les images au conteneur
                 for (String type : deco) {
-                    if (!images.containsKey(type)) {
+                    try {
                         ImageView img = new ImageView(new javafx.scene.image.Image(getClass().getResourceAsStream("/" + type + ".png")));
                         img.setFitWidth(30);
                         img.setFitHeight(30);
-                        img.setX(inst.getX() - 15);  // Centrer sous le ping
-                        img.setY(inst.getY() + 20);
-                        images.put(type, img);
-                        gamePane.getChildren().add(img);
+                        container.getChildren().add(img);
+                    } catch (Exception e) {
+                        System.err.println("Image non trouvée: " + type + ".png");
                     }
                 }
             }
