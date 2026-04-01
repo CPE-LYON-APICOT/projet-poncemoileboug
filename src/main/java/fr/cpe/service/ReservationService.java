@@ -28,6 +28,7 @@ public class ReservationService {
     private final StockService stockService;
     private final PaymentService paymentService;
     private final UiService uiService;
+    private double lastAmountCharged = 0.0; // Montant réellement payé à la dernière réservation
 
     @Inject
     public ReservationService(StockService stockService, PaymentService paymentService, UiService uiService) {
@@ -48,16 +49,24 @@ public class ReservationService {
         IInstallation installationChoisie = afficherDialogueOptions(installation);
 
         // 3. Choix du mode de paiement et configuration de la stratégie
+        double prixTotal = installationChoisie.getPrix();
+        double prixPMR = prixTotal - installation.getPrix();
+        
         ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("CB", "Lydia", "PMR");
         choiceDialog.setTitle("Paiement");
         choiceDialog.setHeaderText("Choisissez votre mode de paiement");
+        choiceDialog.setContentText(
+            "💳 CB : " + String.format("%.2f", prixTotal) + " €\n" +
+            "📱 Lydia : " + String.format("%.2f", prixTotal) + " €\n" +
+            "♿ PMR (thèmes uniquement) : " + String.format("%.2f", prixPMR) + " €"
+        );
 
         Optional<String> modePaiement = choiceDialog.showAndWait();
         if (modePaiement.isEmpty()) {
             return false; // L'utilisateur a annulé la popup de paiement
         }
 
-        double prixAFacturer = installationChoisie.getPrix();
+        double prixAFacturer = prixTotal;
 
         if (modePaiement.get().equals("Lydia")) {
 
@@ -69,7 +78,7 @@ public class ReservationService {
             }
             else {
                 paymentService.setStrategy(App.injector.getInstance(PMRStrategy.class));
-                prixAFacturer = installationChoisie.getPrix() - installation.getPrix();
+                prixAFacturer = prixPMR;
             }
         }
 
@@ -77,6 +86,9 @@ public class ReservationService {
         boolean paiementOk = paymentService.processPayment(prixAFacturer);
 
         if (paiementOk) {
+            // Stocker le montant réellement payé
+            this.lastAmountCharged = prixAFacturer;
+            
             // 5. SI PAIEMENT RÉUSSI : On valide la réservation
             installation.setEtat(EtatInstallation.RESERVE);
 
@@ -90,6 +102,7 @@ public class ReservationService {
             installation.setTimeReservedUntil(System.currentTimeMillis() + 60000);
 
             System.out.println("[RESERVATION] Succès pour : " + installation.getDescription());
+            System.out.println("[RESERVATION] Montant payé : " + prixAFacturer + "€");
             return true;
         } else {
             System.out.println("[RESERVATION] Échec du paiement.");
@@ -143,5 +156,14 @@ public class ReservationService {
         installation.setTimeReservedUntil(-1);
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
         installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
+    }
+
+    /**
+     * Retourne le montant réellement payé pour la dernière réservation.
+     * Pour PMR : c'est le prix des décorateurs uniquement.
+     * Pour CB/Lydia : c'est le prix total (base + décorateurs).
+     */
+    public double getLastAmountCharged() {
+        return lastAmountCharged;
     }
 }

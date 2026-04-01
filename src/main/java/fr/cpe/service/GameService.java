@@ -88,7 +88,11 @@ public class GameService {
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
         confirmation.setTitle("Réservation");
         confirmation.setHeaderText(inst.getDescription());
-        confirmation.setContentText("Prix de base : " + inst.getPrix() + "€\nVoulez-vous personnaliser et réserver ?");
+        confirmation.setContentText("Prix de base : " + inst.getPrix() + "€\n\n"
+                + "Vous pourrez ajouter des thèmes payants lors de l'étape suivante.\n\n"
+                + "Note : Si vous êtes PMR ou enfant (-12 ans),\n"
+                + "l'accès gratuit s'applique. Seuls les thèmes restent payants.\n\n"
+                + "Voulez-vous continuer ?");
 
         Optional<ButtonType> result = confirmation.showAndWait();
 
@@ -97,7 +101,8 @@ public class GameService {
 
             // 4. Feedback final
             if (ok) {
-                afficherAlerte("Succès", "✅ Réservation confirmée ! Profitez bien.", Alert.AlertType.INFORMATION);
+                double montantPaye = reservationService.getLastAmountCharged();
+                afficherAlerte("Succès", "✅ Réservation confirmée ! Profitez bien.\n\nMontant payé : " + String.format("%.2f", montantPaye) + " €", Alert.AlertType.INFORMATION);
             } else {
                 // Le paiement a pu échouer ou l'utilisateur a annulé dans le sous-menu
                 System.out.println("[GAME] Réservation annulée ou échec paiement.");
