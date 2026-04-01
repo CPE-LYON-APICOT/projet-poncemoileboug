@@ -5,6 +5,8 @@ import com.google.inject.Singleton;
 
 import fr.cpe.App;
 import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.decorator.EcoDecorator;
+import fr.cpe.model.installation.decorator.GamerDecorator;
 import fr.cpe.model.installation.decorator.LumiereDecorator;
 import fr.cpe.model.installation.decorator.OlDecorator;
 import fr.cpe.model.installation.decorator.VipDecorator;
@@ -87,8 +89,10 @@ public class ReservationService {
         CheckBox cbLumiere = new CheckBox("Option Lumière (+0.50€)");
         CheckBox cbOl = new CheckBox("Thème Olympique Lyonnais (+1.50€)");
         CheckBox cbVIP = new CheckBox("Thème VIP (+2.00€)");
+        CheckBox cbGamer = new CheckBox("Thème Gamer (+3.50€)");
+        CheckBox cbEco = new CheckBox("Thème Éco-responsable (+7.50€)");
 
-        VBox container = new VBox(10, cbLumiere, cbOl, cbVIP);
+        VBox container = new VBox(10, cbLumiere, cbOl, cbVIP, cbGamer, cbEco);
         dialog.getDialogPane().setContent(container);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -98,6 +102,8 @@ public class ReservationService {
                 if (cbLumiere.isSelected()) result = new LumiereDecorator(result);
                 if (cbOl.isSelected()) result = new OlDecorator(result);
                 if (cbVIP.isSelected()) result = new VipDecorator(result);
+                if (cbGamer.isSelected()) result = new GamerDecorator(result);
+                if (cbEco.isSelected()) result = new EcoDecorator(result);
                 return result;
             }
             return base;
