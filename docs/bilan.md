@@ -15,7 +15,9 @@
 
 ### Fonctionnalité 2 — *Nom*
 
-### Fonctionnalité 3 — *Nom*
+### Fonctionnalité 3 - *Paiement flexible*
+
+Du coup pour les PMR l'installation est gratuites mais les thèmes payants
 
 ### Fonctionnalité 4 — *Nom*
 

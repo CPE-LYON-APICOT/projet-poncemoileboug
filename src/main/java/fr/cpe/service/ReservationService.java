@@ -47,7 +47,7 @@ public class ReservationService {
         Installation installationChoisie = afficherDialogueOptions(installation);
 
         // 3. Choix du mode de paiement et configuration de la stratégie
-        ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("CB", "Lydia");
+        ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("CB", "Lydia", "PMR");
         choiceDialog.setTitle("Paiement");
         choiceDialog.setHeaderText("Choisissez votre mode de paiement");
 
@@ -56,14 +56,24 @@ public class ReservationService {
             return false; // L'utilisateur a annulé la popup de paiement
         }
 
+        double prixAFacturer = installationChoisie.getPrix();
+
         if (modePaiement.get().equals("Lydia")) {
+
             paymentService.setStrategy(App.injector.getInstance(LydiaStrategy.class));
-        } else {
-            paymentService.setStrategy(App.injector.getInstance(CardStrategy.class));
+
+        } else{
+            if (modePaiement.get().equals("CB")) {
+                paymentService.setStrategy(App.injector.getInstance(CardStrategy.class));
+            }
+            else {
+                paymentService.setStrategy(App.injector.getInstance(PMRStrategy.class));
+                prixAFacturer = installationChoisie.getPrix() - installation.getPrix();
+            }
         }
 
         // 4. Tentative de paiement
-        boolean paiementOk = paymentService.processPayment(installationChoisie.getPrix());
+        boolean paiementOk = paymentService.processPayment(prixAFacturer);
 
         if (paiementOk) {
             // 5. SI PAIEMENT RÉUSSI : On valide la réservation
@@ -109,7 +119,7 @@ public class ReservationService {
                 if (cbVIP.isSelected()) result = new VipDecorator(result);
                 if (cbGamer.isSelected()) result = new GamerDecorator(result);
                 if (cbEco.isSelected()) result = new EcoDecorator(result);
-                
+
                 // AJOUTER : Enregistrer maintenant quels CheckBox étaient cochés
                 List<String> selected = new ArrayList<>();
                 if (cbLumiere.isSelected()) selected.add("lumiere");
@@ -118,7 +128,7 @@ public class ReservationService {
                 if (cbGamer.isSelected()) selected.add("gamer");
                 if (cbEco.isSelected()) selected.add("eco");
                 uiService.setDecorations(base, selected);  // Appeler directement ici
-                
+
                 return result;
             }
             return base;
