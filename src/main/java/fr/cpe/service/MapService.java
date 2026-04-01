@@ -28,21 +28,58 @@ public class MapService {
     }
 
     private void initialiserInstallations() {
+        // --- EXTRÊME OUEST (Gauche de la carte) ---
+        ajouter("vaise",
+            new CabineStandard(Arrays.asList(new PapierToilette(15, 5))),
+            80, 150  // Très à gauche, en haut
+        );
+        ajouter("point_du_jour",
+            new Douche(Arrays.asList(new Savon(10, 2)), "Douche Ouest"),
+            100, 340 // Très à gauche, au milieu
+        );
+        ajouter("saint_just",
+            new CabineTurque(Arrays.asList(new PapierToilette(10, 2))),
+            220, 320 // Entre l'extrême ouest et le Vieux Lyon
+        );
+
+        // --- NORD (Haut de la carte) ---
+        ajouter("croix_rousse",
+            new CabineStandard(Arrays.asList(new PapierToilette(30, 10))),
+            380, 60
+        );
+        ajouter("parc_tete_dor",
+            new Urinoir(Arrays.asList(new Savon(10, 2))),
+            600, 80
+        );
+
+        // --- CENTRE (Espacés pour ne pas coller Bellecour) ---
         ajouter("bellecour",
             new CabineStandard(Arrays.asList(new PapierToilette(20, 5), new Savon(15, 3))),
-            400, 300
+            400, 365
         );
-        ajouter("presquile",
+        ajouter("hotel_de_ville",
             new Urinoir(Arrays.asList()),
-            370, 220
+            410, 180 // Plus haut que Bellecour
         );
-        ajouter("perrache",
-            new Douche(Arrays.asList(new Shampoing(10, 2)), "Douche Perrache"),
-            340, 420
-        );
+
+        // --- EST (Droite de la carte) ---
         ajouter("partdieu",
             new CabineTurque(Arrays.asList(new PapierToilette(10, 3))),
-            560, 250
+            620, 230
+        );
+        ajouter("grange_blanche",
+            new Douche(Arrays.asList(new Shampoing(15, 5)), "Douche Hôpital"),
+            630, 400 // Très à droite
+        );
+
+        // --- SUD (Bas de la carte) ---
+        ajouter("confluence",
+            new CabineStandard(Arrays.asList(new Savon(25, 5))),
+            320, 500
+        );
+        ajouter("gerland",
+            new Urinoir(Arrays.asList()),
+            500, 560 // Très en bas
         );
     }
 
