@@ -1,5 +1,7 @@
 package fr.cpe.service;
 
+import java.util.Optional;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -9,23 +11,25 @@ import fr.cpe.model.installation.decorator.LumiereDecorator;
 import fr.cpe.model.installation.decorator.OlDecorator;
 import fr.cpe.model.installation.decorator.VipDecorator;
 import fr.cpe.model.observer.SanitaireEvent;
+import fr.cpe.service.UiService;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Dialog;
 import javafx.scene.layout.VBox;
-import java.util.Optional;
 
 @Singleton
 public class ReservationService {
 
     private final StockService stockService;
     private final PaymentService paymentService;
+    private final UiService uiService;
 
     @Inject
-    public ReservationService(StockService stockService, PaymentService paymentService) {
+    public ReservationService(StockService stockService, PaymentService paymentService, UiService uiService) {
         this.stockService = stockService;
         this.paymentService = paymentService;
+        this.uiService = uiService;
     }
 
     // Retourne true si la réservation a été effectuée, false sinon
@@ -36,9 +40,8 @@ public class ReservationService {
             return false;
         }
 
-
         Installation installationChoisie = afficherDialogueOptions(installation);
-
+        enregistrerDecorateurs(installation, installationChoisie, uiService);
         // 2. Marquer comme occupé
         installation.setDisponible(false);
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
@@ -106,5 +109,17 @@ public class ReservationService {
         installation.setTimeReservedUntil(-1);
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
         installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
+    }
+
+    void enregistrerDecorateurs(Installation originale, Installation decoree, UiService uiService) {
+    if (decoree instanceof LumiereDecorator) {
+        uiService.ajouterDecoration(originale, "lumiere");
+    }
+    if (decoree instanceof OlDecorator) {
+        uiService.ajouterDecoration(originale, "ol");
+    }
+    if (decoree instanceof VipDecorator) {
+        uiService.ajouterDecoration(originale, "vip");
+    }
     }
 }
