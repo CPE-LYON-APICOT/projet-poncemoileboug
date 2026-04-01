@@ -79,7 +79,7 @@ public class MapService {
         );
         ajouter("gerland",
             new Urinoir(Arrays.asList()),
-            500, 560 // Très en bas
+            510, 520 // Très en bas
         );
     }
 
