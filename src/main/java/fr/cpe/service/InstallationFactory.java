@@ -3,12 +3,13 @@ package fr.cpe.service;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.cpe.model.consommable.IConsommable;
 import fr.cpe.model.consommable.CubeDesodorisant;
+import fr.cpe.model.consommable.IConsommable;
 import fr.cpe.model.consommable.PapierToilette;
 import fr.cpe.model.consommable.Savon;
 import fr.cpe.model.consommable.Shampoing;
 import fr.cpe.model.installation.CabineStandard;
+import fr.cpe.model.installation.CabineTurque;
 import fr.cpe.model.installation.Douche;
 import fr.cpe.model.installation.IInstallation;
 import fr.cpe.model.installation.Urinoir;
@@ -27,6 +28,18 @@ public class InstallationFactory {
             new CubeDesodorisant(10, 5)
         );
         return new CabineStandard(consommables);
+    }
+
+    /**
+     * Crée une cabine turque avec ses consommables par défaut
+     */
+    public static IInstallation createCabineTurque() {
+        var consommables = Arrays.asList(
+            new PapierToilette(10, 5),
+            new Savon(10, 5),
+            new CubeDesodorisant(10, 5)
+        );
+        return new CabineTurque(consommables);
     }
 
     /**

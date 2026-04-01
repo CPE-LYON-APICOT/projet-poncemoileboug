@@ -1,17 +1,14 @@
 package fr.cpe.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import fr.cpe.model.EtatInstallation;
-import fr.cpe.model.consommable.PapierToilette;
-import fr.cpe.model.consommable.Savon;
-import fr.cpe.model.consommable.Shampoing;
-import fr.cpe.model.installation.*;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import fr.cpe.model.installation.AbstractInstallation;
+import fr.cpe.model.installation.IInstallation;
 
 @Singleton
 public class MapService {
@@ -32,48 +29,47 @@ public class MapService {
     private void initialiserInstallations() {
         // --- EXTRÊME OUEST (Gauche de la carte) ---
         ajouter("vaise",
-            new CabineStandard(Arrays.asList(new PapierToilette(15, 5))),
+            InstallationFactory.createCabineStandard(),
             80, 150  // Très à gauche, en haut
         );
         ajouter("point_du_jour",
-            new Douche(Arrays.asList(new Savon(10, 2)), "Douche Ouest"),
+            InstallationFactory.createDouche(),
             100, 340 // Très à gauche, au milieu
         );
         ajouter("saint_just",
-            new CabineTurque(Arrays.asList(new PapierToilette(10, 2))),
+            InstallationFactory.createCabineTurque(),
             220, 320 // Entre l'extrême ouest et le Vieux Lyon
         );
 
         // --- NORD (Haut de la carte) ---
         ajouter("croix_rousse",
-            new CabineStandard(Arrays.asList(new PapierToilette(30, 10))),
+            InstallationFactory.createCabineStandard(),
             380, 60
         );
         ajouter("parc_tete_dor",
-            new Urinoir(Arrays.asList(new Savon(10, 2))),
+            InstallationFactory.createUrinoir(true),
             600, 80
         );
 
         // --- CENTRE (Espacés pour ne pas coller Bellecour) ---
         ajouter("bellecour",
-            new CabineStandard(Arrays.asList(new PapierToilette(20, 5), new Savon(15, 3))),
+            InstallationFactory.createCabineStandard(),
             400, 365
         );
         ajouter("hotel_de_ville",
-            new Urinoir(Arrays.asList()),
+            InstallationFactory.createUrinoir(false),
             410, 180 // Plus haut que Bellecour
         );
 
         // --- EST (Droite de la carte) ---
         ajouter("partdieu",
-            new CabineTurque(Arrays.asList(new PapierToilette(10, 3))),
+            InstallationFactory.createCabineTurque(),
             620, 230
         );
-        IInstallation doucheGrangeBlanche = new Douche(Arrays.asList(new Shampoing(15, 5)), "Douche Hôpital");
-
-        // ON LA PASSE EN MAINTENANCE AVANT DE L'AJOUTER
+        
+        // Douche avec état de maintenance
+        IInstallation doucheGrangeBlanche = InstallationFactory.createDouche();
         doucheGrangeBlanche.setEtat(EtatInstallation.EN_MAINTENANCE);
-
         ajouter("grange_blanche",
             doucheGrangeBlanche,
             630, 400
@@ -81,11 +77,11 @@ public class MapService {
 
         // --- SUD (Bas de la carte) ---
         ajouter("confluence",
-            new CabineStandard(Arrays.asList(new Savon(25, 5))),
+            InstallationFactory.createCabineStandard(),
             320, 500
         );
         ajouter("gerland",
-            new Urinoir(Arrays.asList()),
+            InstallationFactory.createUrinoir(false),
             510, 520 // Très en bas
         );
     }
