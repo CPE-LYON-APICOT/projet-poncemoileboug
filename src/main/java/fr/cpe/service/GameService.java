@@ -12,74 +12,112 @@ package fr.cpe.service;
 // ║                                                                            ║
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
-import com.google.inject.Inject;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
+import java.util.Optional;
 
-/**
- * Service de jeu — gère l'état du jeu et ses éléments visuels.
- *
- * <h2>C'est ici que vous codez votre jeu !</h2>
- *
- * <p>Ce fichier est un <strong>exemple</strong> : une balle qui rebondit.
- * Remplacez tout par votre propre logique.</p>
- *
- * <h2>Méthodes importantes :</h2>
- * <ul>
- *   <li>{@code init(gamePane)} — appelé une fois au démarrage, créez vos Nodes ici</li>
- *   <li>{@code update(width, height)} — appelé ~60x/sec, mettez à jour la logique et les positions ici</li>
- * </ul>
- *
- * <h2>Rendu (Scene Graph) :</h2>
- * <p>Pas besoin de méthode render() ! Vous créez des Nodes JavaFX (Circle, Rectangle,
- * Text, ImageView…) dans {@code init()}, vous les ajoutez au {@code gamePane},
- * et JavaFX les affiche automatiquement. Dans {@code update()}, vous mettez à jour
- * leurs positions.</p>
- *
- * <h2>Clics souris :</h2>
- * <p>Chaque Node gère ses propres clics :</p>
- * <pre>
- *   monCercle.setOnMouseClicked(e -&gt; {
- *       // ce cercle a été cliqué !
- *   });
- * </pre>
- *
- * <h2>Comment ajouter des dépendances :</h2>
- * <p>Ajoutez-les en paramètre du constructeur avec {@code @Inject} :</p>
- * <pre>
- *   @Inject
- *   public GameService(BallService ball, MonAutreService autre) {
- *       this.ball = ball;
- *       this.autre = autre;
- *   }
- * </pre>
- * <p>Guice les injectera automatiquement.</p>
- */
+import com.google.inject.Inject;
+
+import fr.cpe.model.EtatInstallation;
+import fr.cpe.model.installation.IInstallation;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+
 public class GameService {
 
-    private final BallService ballService;
+    private final MapService mapService;
+    private final UiService uiService; // Nouveau service injecté
+    private final ReservationService reservationService;
 
     @Inject
-    public GameService(BallService ballService) {
-        this.ballService = ballService;
+    public GameService(MapService mapService, UiService uiService, ReservationService reservationService) {
+        this.mapService = mapService;
+        this.uiService = uiService;
+        this.reservationService = reservationService;
+
+
     }
 
-    /**
-     * Initialise les éléments visuels du jeu (appelé une fois au démarrage).
-     */
     public void init(Pane gamePane) {
-        ballService.init(gamePane);
+        // Fond
+        Image image = new Image(getClass().getResourceAsStream("/lyon.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(800);
+        imageView.setFitHeight(600);
+        gamePane.getChildren().add(imageView);
 
-        Text text = new Text(20, 30, "Projet POO — À vous de jouer !");
-        text.setFill(Color.web("#cdd6f4"));
-        gamePane.getChildren().add(text);
+        // Initialisation des visuels
+        mapService.getInstallations().forEach((id, inst) -> {
+            // On demande à l'UI de dessiner, et on lui dit quoi faire si on clique
+            uiService.dessinerInstallation(gamePane, inst, () -> {
+                tenterReservation(inst);
+            });
+        });
+    }
+
+    public void update(double w, double h) {
+        // Vérifier si des réservations ont expiré
+        mapService.getInstallations().forEach((id, installation) -> {
+            // On ne libère que si l'état est RESERVE et que le temps est écoulé
+            if (installation.getEtat() == EtatInstallation.RESERVE
+                && installation.getTimeReservedUntil() > 0
+                && System.currentTimeMillis() > installation.getTimeReservedUntil()) {
+
+                reservationService.liberer(installation);
+            }
+        });
+
+        uiService.rafraichirAffichage();
+    }
+
+
+    private void tenterReservation(IInstallation inst) {
+        // 1. Gestion des différents états pour le feedback utilisateur
+        if (inst.getEtat() == EtatInstallation.EN_MAINTENANCE) {
+            afficherAlerte("Indisponible", "Cette installation est actuellement en maintenance.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (inst.getEtat() == EtatInstallation.RESERVE) {
+            afficherAlerte("Indisponible", "Cette installation est déjà occupée !", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // 2. Création de la popup de confirmation (uniquement si LIBRE)
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Réservation");
+        confirmation.setHeaderText(inst.getDescription());
+        confirmation.setContentText("Prix de base : " + inst.getPrix() + "€\n\n"
+                + "Vous pourrez ajouter des thèmes payants lors de l'étape suivante.\n\n"
+                + "Note : Si vous êtes PMR ou enfant (-12 ans),\n"
+                + "l'accès gratuit s'applique. Seuls les thèmes restent payants.\n\n"
+                + "Voulez-vous continuer ?");
+
+        Optional<ButtonType> result = confirmation.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean ok = reservationService.reserver(inst);
+
+            // 4. Feedback final
+            if (ok) {
+                double montantPaye = reservationService.getLastAmountCharged();
+                afficherAlerte("Succès", "✅ Réservation confirmée ! Profitez bien.\n\nMontant payé : " + String.format("%.2f", montantPaye) + " €", Alert.AlertType.INFORMATION);
+            } else {
+                // Le paiement a pu échouer ou l'utilisateur a annulé dans le sous-menu
+                System.out.println("[GAME] Réservation annulée ou échec paiement.");
+            }
+        }
     }
 
     /**
-     * Met à jour l'état du jeu (appelé à chaque frame).
+     * Méthode utilitaire pour éviter de dupliquer le code des alertes
      */
-    public void update(double width, double height) {
-        ballService.update(width, height);
+    private void afficherAlerte(String titre, String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(titre);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
     }
 }

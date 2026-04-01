@@ -20,10 +20,16 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import fr.cpe.engine.GameEngine;
 import fr.cpe.engine.InputService;
+import fr.cpe.service.GameService;
+import fr.cpe.service.MapService;
+import fr.cpe.service.PaymentService;
+import fr.cpe.service.ReservationService;
+import fr.cpe.service.StockService;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import fr.cpe.service.CardStrategy;
 
 /**
  * Point d'entrée de l'application JavaFX.
@@ -53,29 +59,34 @@ public class App extends Application {
     private static final int HEIGHT = 600;
 
     private GameEngine engine;
+    private InputService inputService;
+    public static final Injector injector = Guice.createInjector(new AppModule());
+
+
 
     @Override
     public void start(Stage stage) {
-        // Création de l'injecteur Guice avec notre module de configuration
-        Injector injector = Guice.createInjector(new AppModule());
 
-        // Guice construit le GameEngine et injecte automatiquement les services
+         // Guice construit le GameEngine et injecte automatiquement les services
         engine = injector.getInstance(GameEngine.class);
-        InputService inputService = injector.getInstance(InputService.class);
+        inputService = injector.getInstance(InputService.class);
+
+
+
+        // --- ÉTAPE 2 : CONFIGURATION JAVAFX ---
 
         Pane gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: #1e1e2e;");
         Scene scene = new Scene(gamePane, WIDTH, HEIGHT);
-
-        // Capture des événements clavier → InputService
+        // Liaison des contrôles clavier
         scene.setOnKeyPressed(e -> inputService.handleKeyPressed(e.getCode()));
         scene.setOnKeyReleased(e -> inputService.handleKeyReleased(e.getCode()));
 
-        stage.setTitle("Projet POO");
+        stage.setTitle("Projet POO - ToiletteMonLyon");
         stage.setScene(scene);
         stage.show();
 
-        // Lancement de la boucle de jeu
+        // Lancement du moteur
         engine.start(gamePane);
     }
 
