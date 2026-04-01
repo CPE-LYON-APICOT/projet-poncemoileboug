@@ -33,11 +33,11 @@ public class UiService {
         double y = inst.getY();
 
         Circle ping = new Circle(x, y, 12, Color.GRAY);
-        ping.setStroke(Color.WHITE);
+        ping.setStroke(Color.BLACK);
         ping.setStrokeWidth(2);
 
         Text label = new Text(x + 15, y + 5, inst.getDescription());
-        label.setFill(Color.WHITE);
+        label.setFill(Color.BLACK);
         label.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
 
         // On déclenche l'action de réservation passée par le GameService
