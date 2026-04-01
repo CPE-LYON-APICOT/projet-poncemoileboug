@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import fr.cpe.model.installation.*;
 import fr.cpe.model.installation.decorator.*;
 import fr.cpe.model.consommable.Consommable;
+import fr.cpe.model.observer.SanitaireEvent;
 import fr.cpe.service.PaymentService;
 import fr.cpe.service.CardStrategy;
+import fr.cpe.service.LydiaStrategy;
 import fr.cpe.service.StockService;
 import fr.cpe.service.ReservationService;
 
@@ -102,7 +104,7 @@ class AppTest {
 
         // Simulation manuelle (sans appeler reserver() qui ouvre un Dialog)
         assertTrue(cabine.isDisponible());
-
+        
         // Logique de réservation "Back-end"
         paymentService.setStrategy(new CardStrategy());
         boolean ok = paymentService.processPayment(cabine.getPrix());
@@ -112,7 +114,7 @@ class AppTest {
         }
 
         assertTrue(ok);
-        assertFalse(cabine.isDisponible());
+        assertFalse(cabine.isDisponible()); 
     }
 
     @Test
@@ -122,13 +124,13 @@ class AppTest {
         ReservationService reservationService = new ReservationService(stockService, paymentService);
 
         Installation cabine = new CabineStandard(new ArrayList<>());
-
+        
         // On occupe la cabine
         cabine.setDisponible(false);
         assertFalse(cabine.isDisponible());
 
         // On libère via le service
         reservationService.liberer(cabine);
-        assertTrue(cabine.isDisponible());
+        assertTrue(cabine.isDisponible()); 
     }
 }

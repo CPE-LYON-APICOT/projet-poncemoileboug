@@ -7,11 +7,12 @@ import com.google.inject.Singleton;
 
 import fr.cpe.App;
 import fr.cpe.model.installation.Installation;
+import fr.cpe.model.installation.decorator.EcoDecorator;
+import fr.cpe.model.installation.decorator.GamerDecorator;
 import fr.cpe.model.installation.decorator.LumiereDecorator;
 import fr.cpe.model.installation.decorator.OlDecorator;
 import fr.cpe.model.installation.decorator.VipDecorator;
 import fr.cpe.model.observer.SanitaireEvent;
-import fr.cpe.service.UiService;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
@@ -32,43 +33,55 @@ public class ReservationService {
         this.uiService = uiService;
     }
 
-    // Retourne true si la réservation a été effectuée, false sinon
     public boolean reserver(Installation installation) {
-        // 1. Vérifier la disponibilité
+        // 1. Vérifier la disponibilité initiale
         if (!installation.isDisponible()) {
             System.out.println("[RESERVATION] Installation indisponible : " + installation.getDescription());
             return false;
         }
 
+        // 2. Choix des options (Décorateurs)
+        // Note : En test JUnit, si Platform.startup() n'est pas fait, cela plantera ici.
         Installation installationChoisie = afficherDialogueOptions(installation);
-        enregistrerDecorateurs(installation, installationChoisie, uiService);
-        // 2. Marquer comme occupé
-        installation.setDisponible(false);
-        installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
 
-        ChoiceDialog<String> choiceDialog = new ChoiceDialog<String>("CB","Lydia");
-        choiceDialog.showAndWait().ifPresent((String e)->{
+        // 3. Choix du mode de paiement et configuration de la stratégie
+        ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("CB", "Lydia");
+        choiceDialog.setTitle("Paiement");
+        choiceDialog.setHeaderText("Choisissez votre mode de paiement");
 
-            if(e=="Lydia"){
-                paymentService.setStrategy(App.injector.getInstance(LydiaStrategy.class));
-            }else if (e=="CB"){
-                paymentService.setStrategy(App.injector.getInstance(CardStrategy.class));
-            }
-        });
-        boolean paiementOk = paymentService.processPayment(installationChoisie.getPrix());
-
-        if (!paiementOk) {
-            return false;
+        Optional<String> modePaiement = choiceDialog.showAndWait();
+        if (modePaiement.isEmpty()) {
+            return false; // L'utilisateur a annulé la popup de paiement
         }
 
-        installation.setDisponible(false);
-        installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
-        stockService.consume(installation);
+        if (modePaiement.get().equals("Lydia")) {
+            paymentService.setStrategy(App.injector.getInstance(LydiaStrategy.class));
+        } else {
+            paymentService.setStrategy(App.injector.getInstance(CardStrategy.class));
+        }
 
-        // 5. Lancer le timer de 60 secondes
-        installation.setTimeReservedUntil(System.currentTimeMillis() + 60000);
+        // 4. Tentative de paiement
+        boolean paiementOk = paymentService.processPayment(installationChoisie.getPrix());
 
-        return true;
+        if (paiementOk) {
+            // 5. SI PAIEMENT RÉUSSI : On valide la réservation
+            installation.setDisponible(false);
+
+            // Consommation des stocks (papier, savon, etc.)
+            stockService.consume(installation);
+
+            // Notification aux observateurs (pour l'UI et la maintenance)
+            installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
+
+            // Lancer le timer de 60 secondes
+            installation.setTimeReservedUntil(System.currentTimeMillis() + 60000);
+
+            System.out.println("[RESERVATION] Succès pour : " + installation.getDescription());
+            return true;
+        } else {
+            System.out.println("[RESERVATION] Échec du paiement.");
+            return false;
+        }
     }
 
     private Installation afficherDialogueOptions(Installation base) {
@@ -79,31 +92,29 @@ public class ReservationService {
         CheckBox cbLumiere = new CheckBox("Option Lumière (+0.50€)");
         CheckBox cbOl = new CheckBox("Thème Olympique Lyonnais (+1.50€)");
         CheckBox cbVIP = new CheckBox("Thème VIP (+2.00€)");
+        CheckBox cbGamer = new CheckBox("Thème Gamer (+3.50€)");
+        CheckBox cbEco = new CheckBox("Thème Éco-responsable (+7.50€)");
 
-        VBox container = new VBox(10, cbLumiere, cbOl, cbVIP);
+        VBox container = new VBox(10, cbLumiere, cbOl, cbVIP, cbGamer, cbEco);
         dialog.getDialogPane().setContent(container);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        // On transforme les choix en décorateurs lors du clic sur OK
         dialog.setResultConverter(button -> {
-            Installation result = base;
-            if (cbLumiere.isSelected()) {
-                result = new LumiereDecorator(result);
+            if (button == ButtonType.OK) {
+                Installation result = base;
+                if (cbLumiere.isSelected()) result = new LumiereDecorator(result);
+                if (cbOl.isSelected()) result = new OlDecorator(result);
+                if (cbVIP.isSelected()) result = new VipDecorator(result);
+                if (cbGamer.isSelected()) result = new GamerDecorator(result);
+                if (cbEco.isSelected()) result = new EcoDecorator(result);
+                return result;
             }
-            if (cbOl.isSelected()) {
-                result = new OlDecorator(result);
-            }
-            if (cbVIP.isSelected()) {
-                result = new VipDecorator(result);
-            }
-            return result;
+            return base;
         });
 
-        Optional<Installation> optionResult = dialog.showAndWait();
-        return optionResult.orElse(base);
+        return dialog.showAndWait().orElse(base);
     }
 
-    // Appelé par le GameEngine quand le timer expire
     public void liberer(Installation installation) {
         installation.setDisponible(true);
         installation.setTimeReservedUntil(-1);
