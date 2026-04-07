@@ -8,6 +8,8 @@ ToiletteMonLyon est une plateforme lyonnaise permettant de réserver en ligne de
 
 Le concept s'adresse à tous les Lyonnais et touristes qui souhaitent avoir la certitude de trouver une installation disponible, propre, et adaptée à leurs besoins - qu'ils soient en balade sur la Presqu'île, en sortie à la Fête des Lumières, sportif cherchant une douche rapide après un footing, ou simplement en ville pour la journée.
 
+Egalement, la possibilité de mettre des avis de manière anonyme (contrairement aux avis Google).
+
 ## Fonctionnalités principales
 
 ### Fonctionnalité 1 - *Réservation d'une installation à Lyon*
