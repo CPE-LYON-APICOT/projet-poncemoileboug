@@ -8,11 +8,9 @@ import fr.cpe.model.observer.SanitaireEvent;
 
 /**
  * Service de maintenance des installations sanitaires.
- * <p>
  * Implémente {@link IInstallationObserver} pour réagir aux événements
  * émis par les installations. Gère deux types d'alertes : les demandes
  * de nettoyage et les alertes de stock critique.
- * </p>
  *
  * @see IInstallationObserver
  * @see SanitaireEvent
@@ -25,15 +23,13 @@ public class MaintenanceService implements IInstallationObserver {
     @Inject
     public MaintenanceService() {}
 
-    /**
+   /**
      * Réagit à un événement émis par une installation sanitaire.
-     * <p>
-     * Selon la nature de l'événement reçu :
+     * * Selon la nature de l'événement reçu :
      * <ul>
-     *   <li>{@link SanitaireEvent#NETTOYAGE_REQUIS} : notifie un agent de maintenance</li>
-     *   <li>{@link SanitaireEvent#STOCK_ALERT} : déclenche une alerte de stock</li>
+     * <li>{@link SanitaireEvent#NETTOYAGE_REQUIS} : notifie un agent de maintenance</li>
+     * <li>{@link SanitaireEvent#STOCK_ALERT} : déclenche une alerte de stock</li>
      * </ul>
-     * </p>
      *
      * @param source l'installation à l'origine de l'événement
      * @param event  le type d'événement sanitaire survenu

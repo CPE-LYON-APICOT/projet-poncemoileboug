@@ -32,3 +32,19 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet') // Optional: Hides the 54 warnings
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+}
+javadoc {
+    options.addStringOption('Xdoclint:all,-missing', '-quiet')
+}
+
+tasks.register('openJavadoc') {
+    dependsOn javadoc
+    doLast {
+        java.awt.Desktop.desktop.browse(file("build/docs/javadoc/index.html").toURI())
+    }
+}

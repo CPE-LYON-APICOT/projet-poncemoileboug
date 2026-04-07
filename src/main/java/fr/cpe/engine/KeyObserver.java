@@ -6,7 +6,7 @@ import javafx.scene.input.KeyCode;
  * Interface Observer pour les événements clavier.
  *
  * <p>Implémentez cette interface et enregistrez-vous auprès de
- * {@link InputService#addObserver(KeyObserver)} pour être notifié
+ * {@link InputService#addKeyObserver(KeyObserver)} pour être notifié
  * des appuis et relâchements de touches.</p>
  *
  * <p>Exemple :</p>
