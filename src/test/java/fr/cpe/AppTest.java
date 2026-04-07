@@ -18,8 +18,12 @@ import java.util.List;
 
 class AppTest {
 
-    @BeforeAll
     static void initJFX() {
+        // Force headless mode for CI environments
+        System.setProperty("glass.platform", "Monocle");
+        System.setProperty("monocle.platform", "Headless");
+        System.setProperty("prism.order", "sw");
+
         try {
             Platform.startup(() -> {});
         } catch (IllegalStateException e) {
