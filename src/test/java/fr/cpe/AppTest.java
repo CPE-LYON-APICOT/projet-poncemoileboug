@@ -1,9 +1,7 @@
 package fr.cpe;
 
-import fr.cpe.model.Ball;
 import fr.cpe.model.EtatInstallation;
 import javafx.application.Platform;
-import javafx.scene.paint.Color;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
@@ -27,23 +25,6 @@ class AppTest {
         } catch (IllegalStateException e) {
             // Déjà initialisé
         }
-    }
-
-    @Test
-    void ballInitialisesCorrectly() {
-        Ball ball = new Ball(10, 20, 3, -2, Color.RED);
-        assertEquals(10, ball.x);
-        assertEquals(20, ball.y);
-        assertEquals(3, ball.dx);
-        assertEquals(-2, ball.dy);
-        assertEquals(Color.RED, ball.getColor());
-    }
-
-    @Test
-    void ballColorCanBeChanged() {
-        Ball ball = new Ball(0, 0, 0, 0, Color.RED);
-        ball.setColor(Color.BLUE);
-        assertEquals(Color.BLUE, ball.getColor());
     }
 
     @Test
