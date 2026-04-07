@@ -1,17 +1,25 @@
 package fr.cpe.model.installation.decorator;
 
 import java.util.List;
-
 import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.consommable.IConsommable;
 import fr.cpe.model.installation.IInstallation;
 import fr.cpe.model.observer.IInstallationObserver;
 import fr.cpe.model.observer.SanitaireEvent;
 
+/**
+ * Classe abstraite pour tous les décorateurs d'installation.
+ * Elle permet d'ajouter dynamiquement des fonctionnalités à une installation
+ * en déléguant les appels de méthodes à l'objet décoré.
+ */
 public abstract class InstallationDecorator implements IInstallation {
 
-    protected IInstallation decorated; // L'instance décorée (protected pour être accessible par les sous-classes)
+    /** L'instance d'installation originale qui est enveloppée par ce décorateur. */
+    protected IInstallation decorated;
 
+    /**
+     * @param decorated L'instance d'installation à décorer.
+     */
     public InstallationDecorator(IInstallation decorated) {
         this.decorated = decorated;
     }
