@@ -7,51 +7,65 @@ import java.util.Map;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import fr.cpe.model.EtatInstallation;
 import fr.cpe.model.consommable.IConsommable;
 import fr.cpe.model.installation.IInstallation;
 import fr.cpe.model.observer.IInstallationObserver;
 import fr.cpe.model.observer.SanitaireEvent;
 
+/**
+ * Gère le stock de consommables pour chaque installation sanitaire.
+ * Implémente {@link IInstallationObserver} pour réagir aux alertes de stock.
+ */
 @Singleton
 public class StockService implements IInstallationObserver {
 
-    // La map centrale : chaque installation pointe vers sa liste de consommables
+    /** Stock central : associe chaque installation à ses consommables. */
     private final Map<IInstallation, List<IConsommable>> stocks = new HashMap<>();
 
     @Inject
     public StockService() {}
 
-    // Enregistre une installation et ses consommables dans le service
+    /**
+     * Enregistre une installation et charge ses consommables dans le stock.
+     *
+     * @param installation l'installation à enregistrer
+     */
     public void register(IInstallation installation) {
         stocks.put(installation, installation.getConsommables());
     }
 
-    // Appelé après une prestation : décrémente chaque consommable de l'installation
-public void consume(IInstallation installation) {
-    List<IConsommable> consommables = stocks.get(installation);
-    if (consommables == null) return;
+    /**
+     * Décrémente les consommables d'une installation après une prestation.
+     * Déclenche une alerte si un consommable est en rupture imminente.
+     *
+     * @param installation l'installation ayant effectué une prestation
+     */
+    public void consume(IInstallation installation) {
+        List<IConsommable> consommables = stocks.get(installation);
+        if (consommables == null) return;
 
-    boolean ruptureProche = false;
+        boolean ruptureProche = false;
 
-    for (IConsommable c : consommables) {
-        if (c.getQuantite() <= 1) {
-            ruptureProche = true;
-            // On ne fait PAS c.setQuantite(0) pour éviter ton exception
+        for (IConsommable c : consommables) {
+            if (c.getQuantite() <= 1) {
+                ruptureProche = true;
+            } else {
+                c.setQuantite(c.getQuantite() - 1);
+            }
+        }
+
+        if (ruptureProche) {
+            installation.notifyObservers(SanitaireEvent.STOCK_ALERT);
         } else {
-            c.setQuantite(c.getQuantite() - 1);
+            checkLevels(installation);
         }
     }
 
-    if (ruptureProche) {
-        // On prévient juste qu'on est au bout du stock
-        installation.notifyObservers(SanitaireEvent.STOCK_ALERT);
-    } else {
-        checkLevels(installation);
-    }
-}
-
-
+    /**
+     * Vérifie les niveaux de stock d'une installation et notifie si un seuil est atteint.
+     *
+     * @param installation l'installation à vérifier
+     */
     public void checkLevels(IInstallation installation) {
         List<IConsommable> consommables = stocks.get(installation);
         if (consommables == null) return;
@@ -61,28 +75,28 @@ public void consume(IInstallation installation) {
 
         for (IConsommable c : consommables) {
             if (c.getQuantite() <= 0) {
-                ruptureTotale = true; // Plus rien du tout !
+                ruptureTotale = true;
                 break;
             } else if (c.getQuantite() <= c.getSeuilAlerte()) {
-                seuilAtteint = true; // Juste une alerte
+                seuilAtteint = true;
             }
         }
 
-        if (ruptureTotale) {
-            // On peut créer un nouvel Event ou réutiliser l'existant avec une logique d'état
-            installation.notifyObservers(SanitaireEvent.STOCK_ALERT);
-        } else if (seuilAtteint) {
-            // Optionnel : notifyObservers(SanitaireEvent.STOCK_LOW); si tu as cet enum
-            // Sinon, on gère la distinction dans onEvent via les quantités
+        if (ruptureTotale || seuilAtteint) {
             installation.notifyObservers(SanitaireEvent.STOCK_ALERT);
         }
     }
 
+    /**
+     * Reçoit les événements de stock et affiche une popup adaptée (alerte ou rupture).
+     *
+     * @param source l'installation émettrice de l'événement
+     * @param event  l'événement reçu
+     */
     @Override
     public void onEvent(IInstallation source, SanitaireEvent event) {
         if (event == SanitaireEvent.STOCK_ALERT) {
 
-            // On vérifie si c'est la fin du stock (quantité à 1 car ton code interdit 0)
             boolean rupture = source.getConsommables().stream()
                                     .anyMatch(c -> c.getQuantite() <= 1);
 
@@ -91,22 +105,18 @@ public void consume(IInstallation installation) {
             javafx.scene.control.Alert.AlertType typeAlerte;
 
             if (rupture) {
-                // --- CAS RUPTURE : INFORMATION ---
-                // On ne change PAS l'état ici pour laisser le timer actuel finir.
                 titre = "DERNIÈRE UTILISATION - Rupture imminente";
-                typeAlerte = javafx.scene.control.Alert.AlertType.ERROR; // Rouge car critique
+                typeAlerte = javafx.scene.control.Alert.AlertType.ERROR;
                 message.append("Attention : C'est la dernière utilisation possible pour ")
                     .append(source.getDescription())
                     .append(".\nL'installation passera en maintenance automatiquement juste après.");
             } else {
-                // --- CAS SEUIL : SIMPLE ALERTE ---
                 titre = "Attention : Stock Faible";
-                typeAlerte = javafx.scene.control.Alert.AlertType.WARNING; // Orange
+                typeAlerte = javafx.scene.control.Alert.AlertType.WARNING;
                 message.append("Le seuil d'alerte est atteint pour ")
                     .append(source.getDescription()).append(".\n");
             }
 
-            // Détail des consommables sous le seuil
             message.append("\n\nÉtat des consommables :\n");
             for (IConsommable c : source.getConsommables()) {
                 if (c.getQuantite() <= c.getSeuilAlerte()) {
@@ -115,7 +125,6 @@ public void consume(IInstallation installation) {
                 }
             }
 
-            // Affichage de la popup (Thread-safe)
             javafx.application.Platform.runLater(() -> {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(typeAlerte);
                 alert.setTitle(titre);

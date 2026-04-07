@@ -22,12 +22,17 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Dialog;
 import javafx.scene.layout.VBox;
 
+/**
+ * Gère le cycle de vie d'une réservation : options, paiement, occupation et libération.
+ */
 @Singleton
 public class ReservationService {
 
     private final StockService stockService;
     private final PaymentService paymentService;
     private final UiService uiService;
+
+    /** Dernier montant facturé, utilisé notamment pour les remboursements éventuels. */
     private double lastAmountCharged = 0.0;
 
     @Inject
@@ -37,6 +42,13 @@ public class ReservationService {
         this.uiService = uiService;
     }
 
+    /**
+     * Tente de réserver une installation : vérifie la disponibilité, propose les options,
+     * gère le paiement puis démarre le timer d'occupation.
+     *
+     * @param installation l'installation à réserver
+     * @return {@code true} si la réservation et le paiement ont abouti, {@code false} sinon
+     */
     public boolean reserver(IInstallation installation) {
         // 1. Vérifier la disponibilité initiale
         if (!installation.isLibre()) {
@@ -101,6 +113,12 @@ public class ReservationService {
         }
     }
 
+    /**
+     * Libère une installation à la fin de son occupation.
+     * Passe en maintenance si les consommables sont épuisés, sinon repasse à LIBRE.
+     *
+     * @param installation l'installation à libérer
+     */
     public void liberer(IInstallation installation) {
         // 1. Protection Consommables : On vérifie si la liste existe avant le stream
         boolean ruptureAtteinte = false;
@@ -127,6 +145,13 @@ public class ReservationService {
         installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
     }
 
+    /**
+     * Affiche une boîte de dialogue permettant à l'utilisateur de choisir des options de confort.
+     * Applique les décorateurs correspondants et met à jour l'UI.
+     *
+     * @param base l'installation de base sans décorateur
+     * @return l'installation décorée selon les choix, ou {@code base} si annulé
+     */
     private IInstallation afficherDialogueOptions(IInstallation base) {
         Dialog<IInstallation> dialog = new Dialog<>();
         dialog.setTitle("Options de confort");
@@ -161,6 +186,11 @@ public class ReservationService {
         return dialog.showAndWait().orElse(base);
     }
 
+    /**
+     * Retourne le dernier montant facturé lors d'une réservation.
+     *
+     * @return le montant en euros
+     */
     public double getLastAmountCharged() {
         return lastAmountCharged;
     }
