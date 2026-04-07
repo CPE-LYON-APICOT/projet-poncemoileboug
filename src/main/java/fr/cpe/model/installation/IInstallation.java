@@ -8,7 +8,6 @@ import fr.cpe.model.observer.SanitaireEvent;
 
 /**
  * Interface représentant une installation sanitaire.
- * <p>
  * Elle définit les caractéristiques principales d'une installation
  * (prix, description, état, position, consommables) ainsi que
  * les mécanismes d'observation et de gestion de réservation.
@@ -52,7 +51,6 @@ public interface IInstallation {
 
     /**
      * Indique si l'installation est libre.
-     * <p>
      * Méthode utilitaire pour conserver une compatibilité logique.
      *
      * @return true si l'installation est libre, false sinon

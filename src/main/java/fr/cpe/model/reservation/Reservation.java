@@ -149,10 +149,8 @@ public class Reservation {
 
     /**
      * Calcule et retourne l'heure d'expiration de la réservation.
-     * <p>
      * L'expiration correspond à l'heure de création augmentée de la durée
      * en minutes.
-     * </p>
      *
      * @return la date et l'heure d'expiration de la réservation
      */

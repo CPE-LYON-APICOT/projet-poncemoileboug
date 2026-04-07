@@ -6,7 +6,6 @@ import fr.cpe.model.consommable.IConsommable;
 
 /**
  * Classe représentant une installation de type urinoir.
- * <p>
  * Un urinoir est une installation sanitaire avec un prix fixe
  * et une liste de consommables associés.
  */

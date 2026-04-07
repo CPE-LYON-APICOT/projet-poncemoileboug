@@ -4,7 +4,6 @@ import fr.cpe.model.installation.IInstallation;
 
 /**
  * Interface représentant un observateur des installations.
- * <p>
  * Les classes implémentant cette interface peuvent être notifiées
  * lorsqu'un événement survient sur une installation donnée.
  */

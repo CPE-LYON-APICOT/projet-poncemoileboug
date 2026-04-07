@@ -10,7 +10,6 @@ import fr.cpe.model.observer.SanitaireEvent;
 
 /**
  * Classe abstraite représentant une installation sanitaire générique.
- * <p>
  * Elle fournit une implémentation de base pour la gestion des consommables,
  * de l'état, des observateurs, de la position et des réservations.
  */

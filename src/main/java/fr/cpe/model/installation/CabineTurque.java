@@ -6,7 +6,6 @@ import fr.cpe.model.consommable.IConsommable;
 
 /**
  * Classe représentant une installation de type cabine turque.
- * <p>
  * Cette installation possède un prix fixe et une description standard,
  * ainsi qu'une liste de consommables associés.
  */

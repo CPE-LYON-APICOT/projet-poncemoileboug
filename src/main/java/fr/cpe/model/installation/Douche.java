@@ -6,7 +6,6 @@ import fr.cpe.model.consommable.IConsommable;
 
 /**
  * Classe représentant une installation de type douche.
- * <p>
  * Une douche possède un prix fixe et une description personnalisable,
  * ainsi qu'une liste de consommables associés.
  */
