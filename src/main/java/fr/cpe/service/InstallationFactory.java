@@ -35,7 +35,7 @@ public class InstallationFactory {
      */
     public static IInstallation createCabineTurque() {
         var consommables = Arrays.asList(
-            new PapierToilette(10, 5),
+            new PapierToilette(5, 3),
             new Savon(10, 5),
             new CubeDesodorisant(10, 5)
         );

@@ -92,23 +92,21 @@ public class UiService {
      */
     public void rafraichirAffichage() {
         visualPings.forEach((inst, circle) -> {
-            // Mise à jour des couleurs
+            // 1. Mise à jour des couleurs du cercle
             Color color;
-
-
             if (inst.getEtat() == EtatInstallation.LIBRE) {
-                color = Color.web("#22c55e");
+                color = Color.web("#22c55e"); // Vert
             } else if (inst.getEtat() == EtatInstallation.RESERVE) {
                 color = Color.web("#ef4444"); // Rouge
             } else {
-                color = Color.web("#e0cb0a");
+                color = Color.web("#e0cb0a"); // Jaune (Maintenance)
             }
 
             if (!circle.getFill().equals(color)) {
                 circle.setFill(color);
             }
 
-            // Mise à jour du label (timer)
+            // 2. Mise à jour du label (Timer ou Description)
             Text label = visualLabels.get(inst);
             if (label != null) {
                 if (inst.getTimeReservedUntil() > 0 && System.currentTimeMillis() < inst.getTimeReservedUntil()) {
@@ -121,27 +119,39 @@ public class UiService {
                 }
             }
 
-            // Mise à jour des images de décoration
+            // 3. Mise à jour des images de décoration (Thèmes)
+            HBox container = decorationContainers.get(inst);
             List<String> deco = decorations.get(inst);
-            if (deco != null && !deco.isEmpty()) {
-                // Initialiser le conteneur si ce n'est pas déjà fait
-                if (!decorationContainers.containsKey(inst)) {
+
+            // CONDITION CRUCIALE : On affiche les thèmes UNIQUEMENT si l'état est RESERVE
+            if (inst.getEtat() == EtatInstallation.RESERVE && deco != null && !deco.isEmpty()) {
+
+                // Initialiser le conteneur s'il n'existe pas encore
+                if (container == null) {
                     initialiserContainerDecoration(inst);
+                    container = decorationContainers.get(inst);
                 }
 
-                HBox container = decorationContainers.get(inst);
-                container.getChildren().clear(); // Vider avant de remplir
-
-                // Ajouter les images au conteneur
-                for (String type : deco) {
-                    try {
-                        ImageView img = new ImageView(new javafx.scene.image.Image(getClass().getResourceAsStream("/" + type + ".png")));
-                        img.setFitWidth(30);
-                        img.setFitHeight(30);
-                        container.getChildren().add(img);
-                    } catch (Exception e) {
-                        System.err.println("Image non trouvée: " + type + ".png");
+                // Pour éviter de re-remplir le HBox 60 fois par seconde (lag),
+                // on ne le fait que s'il est actuellement vide
+                if (container.getChildren().isEmpty()) {
+                    for (String type : deco) {
+                        try {
+                            String imagePath = "/" + type + ".png";
+                            ImageView img = new ImageView(new javafx.scene.image.Image(getClass().getResourceAsStream(imagePath)));
+                            img.setFitWidth(30);
+                            img.setFitHeight(30);
+                            container.getChildren().add(img);
+                        } catch (Exception e) {
+                            System.err.println("Image non trouvée: " + type + ".png");
+                        }
                     }
+                }
+            } else {
+                // Si l'installation n'est plus réservée (LIBRE ou MAINTENANCE),
+                // on vide le conteneur pour faire disparaître les icônes
+                if (container != null && !container.getChildren().isEmpty()) {
+                    container.getChildren().clear();
                 }
             }
         });

@@ -28,7 +28,7 @@ public class ReservationService {
     private final StockService stockService;
     private final PaymentService paymentService;
     private final UiService uiService;
-    private double lastAmountCharged = 0.0; // Montant réellement payé à la dernière réservation
+    private double lastAmountCharged = 0.0;
 
     @Inject
     public ReservationService(StockService stockService, PaymentService paymentService, UiService uiService) {
@@ -41,14 +41,13 @@ public class ReservationService {
         // 1. Vérifier la disponibilité initiale
         if (!installation.isLibre()) {
             System.out.println("[RESERVATION] Installation non disponible (Etat: " + installation.getEtat() + ")");
-        return false;
-    }
+            return false;
+        }
 
-        // 2. Choix des options (Décorateurs)
-        // Note : En test JUnit, si Platform.startup() n'est pas fait, cela plantera ici.
+        // 2. Choix des options
         IInstallation installationChoisie = afficherDialogueOptions(installation);
 
-        // 3. Choix du mode de paiement et configuration de la stratégie
+        // 3. Choix du mode de paiement
         double prixTotal = installationChoisie.getPrix();
         double prixPMR = prixTotal - installation.getPrix();
 
@@ -58,56 +57,71 @@ public class ReservationService {
         choiceDialog.setContentText(
             "💳 CB : " + String.format("%.2f", prixTotal) + " €\n" +
             "📱 Lydia : " + String.format("%.2f", prixTotal) + " €\n" +
-            "♿ PMR (thèmes uniquement) : " + String.format("%.2f", prixPMR) + " €"
+            "♿ PMR : " + String.format("%.2f", prixPMR) + " €"
         );
 
         Optional<String> modePaiement = choiceDialog.showAndWait();
-        if (modePaiement.isEmpty()) {
-            return false; // L'utilisateur a annulé la popup de paiement
-        }
+        if (modePaiement.isEmpty()) return false;
 
         double prixAFacturer = prixTotal;
-
         if (modePaiement.get().equals("Lydia")) {
-
             paymentService.setStrategy(App.injector.getInstance(LydiaStrategy.class));
-
-        } else{
-            if (modePaiement.get().equals("CB")) {
-                paymentService.setStrategy(App.injector.getInstance(CardStrategy.class));
-            }
-            else {
-                paymentService.setStrategy(App.injector.getInstance(PMRStrategy.class));
-                prixAFacturer = prixPMR;
-            }
+        } else if (modePaiement.get().equals("CB")) {
+            paymentService.setStrategy(App.injector.getInstance(CardStrategy.class));
+        } else {
+            paymentService.setStrategy(App.injector.getInstance(PMRStrategy.class));
+            prixAFacturer = prixPMR;
         }
 
         // 4. Tentative de paiement
         boolean paiementOk = paymentService.processPayment(prixAFacturer);
 
         if (paiementOk) {
-            // Stocker le montant réellement payé
             this.lastAmountCharged = prixAFacturer;
 
-            // 5. SI PAIEMENT RÉUSSI : On valide la réservation
+            // --- LOGIQUE DERNIÈRE UTILISATION ---
+
+            // On met l'état à RESERVE pour afficher le timer et le point rouge
             installation.setEtat(EtatInstallation.RESERVE);
 
-            // Consommation des stocks (papier, savon, etc.)
+            // On consomme le stock (L'alerte sera envoyée par StockService si c'est le dernier)
             stockService.consume(installation);
 
-            // Notification aux observateurs (pour l'UI et la maintenance)
+            // Notification pour l'UI (Timer + Couleur)
             installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
 
-            // Lancer le timer de 60 secondes
+            // Lancer le timer
             installation.setTimeReservedUntil(System.currentTimeMillis() + 10000);
 
-            System.out.println("[RESERVATION] Succès pour : " + installation.getDescription());
-            System.out.println("[RESERVATION] Montant payé : " + prixAFacturer + "€");
+            System.out.println("[RESERVATION] Succès (Dernière unité possible) pour : " + installation.getDescription());
             return true;
         } else {
             System.out.println("[RESERVATION] Échec du paiement.");
             return false;
         }
+    }
+
+    public void liberer(IInstallation installation) {
+        // --- LOGIQUE DE MISE EN MAINTENANCE POST-UTILISATION ---
+
+        // On vérifie si un des consommables est à 1 (seuil de rupture car on n'autorise pas 0)
+        boolean ruptureAtteinte = installation.getConsommables().stream()
+                .anyMatch(c -> c.getQuantite() <= 1);
+
+        if (ruptureAtteinte) {
+            // Au lieu de redevenir LIBRE, l'installation passe en MAINTENANCE
+            installation.setEtat(EtatInstallation.EN_MAINTENANCE);
+            System.out.println("[MAINTENANCE] Rupture de stock détectée après libération de : " + installation.getDescription());
+        } else {
+            installation.setEtat(EtatInstallation.LIBRE);
+        }
+
+        installation.setTimeReservedUntil(-1);
+        uiService.clearDecorations(installation);
+
+        // On notifie le changement (Jaune si maintenance, Vert si libre)
+        installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
+        installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
     }
 
     private IInstallation afficherDialogueOptions(IInstallation base) {
@@ -128,21 +142,14 @@ public class ReservationService {
         dialog.setResultConverter(button -> {
             if (button == ButtonType.OK) {
                 IInstallation result = base;
-                if (cbLumiere.isSelected()) result = new LumiereDecorator(result);
-                if (cbOl.isSelected()) result = new OlDecorator(result);
-                if (cbVIP.isSelected()) result = new VipDecorator(result);
-                if (cbGamer.isSelected()) result = new GamerDecorator(result);
-                if (cbEco.isSelected()) result = new EcoDecorator(result);
-
-                // AJOUTER : Enregistrer maintenant quels CheckBox étaient cochés
                 List<String> selected = new ArrayList<>();
-                if (cbLumiere.isSelected()) selected.add("lumiere");
-                if (cbOl.isSelected()) selected.add("ol");
-                if (cbVIP.isSelected()) selected.add("vip");
-                if (cbGamer.isSelected()) selected.add("gamer");
-                if (cbEco.isSelected()) selected.add("eco");
-                uiService.setDecorations(base, selected);  // Appeler directement ici
+                if (cbLumiere.isSelected()) { result = new LumiereDecorator(result); selected.add("lumiere"); }
+                if (cbOl.isSelected()) { result = new OlDecorator(result); selected.add("ol"); }
+                if (cbVIP.isSelected()) { result = new VipDecorator(result); selected.add("vip"); }
+                if (cbGamer.isSelected()) { result = new GamerDecorator(result); selected.add("gamer"); }
+                if (cbEco.isSelected()) { result = new EcoDecorator(result); selected.add("eco"); }
 
+                uiService.setDecorations(base, selected);
                 return result;
             }
             return base;
@@ -151,20 +158,6 @@ public class ReservationService {
         return dialog.showAndWait().orElse(base);
     }
 
-    public void liberer(IInstallation installation) {
-        installation.setEtat(EtatInstallation.LIBRE);
-        installation.setTimeReservedUntil(-1);
-
-        uiService.clearDecorations(installation);
-        installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
-        installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
-    }
-
-    /**
-     * Retourne le montant réellement payé pour la dernière réservation.
-     * Pour PMR : c'est le prix des décorateurs uniquement.
-     * Pour CB/Lydia : c'est le prix total (base + décorateurs).
-     */
     public double getLastAmountCharged() {
         return lastAmountCharged;
     }
