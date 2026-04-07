@@ -1,10 +1,18 @@
 package fr.cpe.model.consommable;
 
+/**
+ * Représente un produit désodorisant classique.
+ * Gère l'état du stock et le seuo d'alerte pour le réapprovisionnement.
+ */
 public class Desodorisant implements IConsommable {
     private final String nom = "Desodorisant";
     private int quantite;
     private final int seuilAlerte;
 
+    /**
+     * @param quantite Stock initial disponible.
+     * @param seuilAlerte Limite basse avant déclenchement d'une alerte.
+     */
     public Desodorisant(int quantite, int seuilAlerte) {
         this.quantite = quantite;
         this.seuilAlerte = seuilAlerte;
@@ -25,6 +33,10 @@ public class Desodorisant implements IConsommable {
         return seuilAlerte;
     }
 
+    /**
+     * Modifie la quantité en stock.
+     * @throws IllegalArgumentException si la quantité fournie est négative ou nulle.
+     */
     @Override
     public void setQuantite(int quantite) {
         if (quantite <= 0){
