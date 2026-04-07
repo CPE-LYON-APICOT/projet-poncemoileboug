@@ -102,24 +102,27 @@ public class ReservationService {
     }
 
     public void liberer(IInstallation installation) {
-        // --- LOGIQUE DE MISE EN MAINTENANCE POST-UTILISATION ---
-
-        // On vérifie si un des consommables est à 1 (seuil de rupture car on n'autorise pas 0)
-        boolean ruptureAtteinte = installation.getConsommables().stream()
-                .anyMatch(c -> c.getQuantite() <= 1);
+        // 1. Protection Consommables : On vérifie si la liste existe avant le stream
+        boolean ruptureAtteinte = false;
+        if (installation.getConsommables() != null) {
+            ruptureAtteinte = installation.getConsommables().stream()
+                    .anyMatch(c -> c.getQuantite() <= 1);
+        }
 
         if (ruptureAtteinte) {
-            // Au lieu de redevenir LIBRE, l'installation passe en MAINTENANCE
             installation.setEtat(EtatInstallation.EN_MAINTENANCE);
-            System.out.println("[MAINTENANCE] Rupture de stock détectée après libération de : " + installation.getDescription());
         } else {
             installation.setEtat(EtatInstallation.LIBRE);
         }
 
         installation.setTimeReservedUntil(-1);
-        uiService.clearDecorations(installation);
 
-        // On notifie le changement (Jaune si maintenance, Vert si libre)
+        // 2. PROTECTION CRUCIALE : On vérifie si uiService est null avant d'appeler clearDecorations
+        // Cela évitera le NullPointerException dans tes tests unitaires
+        if (uiService != null) {
+            uiService.clearDecorations(installation);
+        }
+
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
         installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
     }

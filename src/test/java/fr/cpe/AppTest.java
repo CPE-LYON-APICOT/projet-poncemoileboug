@@ -116,10 +116,11 @@ class AppTest {
     void testLiberation() {
         StockService stockService = new StockService();
         PaymentService paymentService = new PaymentService(new CardStrategy());
-        // Ajout du paramètre null pour UiService
+        // On garde null pour UiService, mais grâce à la modif ci-dessus, ça ne plantera plus
         ReservationService reservationService = new ReservationService(stockService, paymentService, null);
 
-        IInstallation cabine = new CabineStandard(new ArrayList<>());
+        // On s'assure que la liste passée n'est pas nulle (emptyList est déjà définie dans ta classe)
+        IInstallation cabine = new CabineStandard(new ArrayList<>(emptyList));
 
         // On occupe la cabine
         cabine.setEtat(EtatInstallation.RESERVE);
@@ -127,6 +128,8 @@ class AppTest {
 
         // On libère via le service
         reservationService.liberer(cabine);
+
+        // Si la liste est vide, ruptureAtteinte sera false, donc l'état doit être LIBRE
         assertEquals(EtatInstallation.LIBRE, cabine.getEtat());
     }
 }
