@@ -1,6 +1,7 @@
 package fr.cpe;
 
 import fr.cpe.model.Ball;
+import fr.cpe.model.EtatInstallation;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +22,6 @@ class AppTest {
 
     @BeforeAll
     static void initJFX() {
-        // Démarre JavaFX une seule fois pour éviter l'erreur de Toolkit non initialisé
         try {
             Platform.startup(() -> {});
         } catch (IllegalStateException e) {
@@ -68,18 +68,17 @@ class AppTest {
     void testCabineTurque() {
         IInstallation turque = new CabineTurque(emptyList);
         assertEquals(1.00, turque.getPrix(), 0.001);
-        assertTrue(turque.isDisponible());
+        assertEquals(EtatInstallation.LIBRE, turque.getEtat());
     }
 
     @Test
-    void testDisponibilitéCommune() {
+    void testDisponibiliteCommune() {
         IInstallation instal = new CabineStandard(emptyList);
-        assertTrue(instal.isDisponible());
-        instal.setDisponible(false);
-        assertFalse(instal.isDisponible());
-    }
+        assertEquals(EtatInstallation.LIBRE, instal.getEtat());
 
-    // --- TESTS DES SERVICES (CORRIGÉS POUR ÉVITER LES DIALOGS) ---
+        instal.setEtat(EtatInstallation.RESERVE);
+        assertNotEquals(EtatInstallation.LIBRE, instal.getEtat());
+    }
 
     @Test
     void testPaiementCB() {
@@ -87,48 +86,47 @@ class AppTest {
         assertTrue(paymentService.processPayment(1.50));
     }
 
-    /**
-     * Pour tester la réservation sans que la popup ne bloque Gradle,
-     * on simule manuellement ce que ferait la méthode reserver().
-     */
     @Test
     void testReservationComplete() {
         StockService stockService = new StockService();
         PaymentService paymentService = new PaymentService(new CardStrategy());
-        ReservationService reservationService = new ReservationService(stockService, paymentService);
+        // Ajout du paramètre null pour UiService pour que ça compile
+        ReservationService reservationService = new ReservationService(stockService, paymentService, null);
 
         IInstallation cabine = new CabineStandard(new ArrayList<>());
         stockService.register(cabine);
 
-        // Simulation manuelle (sans appeler reserver() qui ouvre un Dialog)
-        assertTrue(cabine.isDisponible());
+        // Vérification état initial
+        assertEquals(EtatInstallation.LIBRE, cabine.getEtat());
 
-        // Logique de réservation "Back-end"
+        // Simulation manuelle
         paymentService.setStrategy(new CardStrategy());
         boolean ok = paymentService.processPayment(cabine.getPrix());
+
         if (ok) {
-            cabine.setDisponible(false);
+            cabine.setEtat(EtatInstallation.RESERVE);
             stockService.consume(cabine);
         }
 
         assertTrue(ok);
-        assertFalse(cabine.isDisponible());
+        assertEquals(EtatInstallation.RESERVE, cabine.getEtat());
     }
 
     @Test
     void testLiberation() {
         StockService stockService = new StockService();
         PaymentService paymentService = new PaymentService(new CardStrategy());
-        ReservationService reservationService = new ReservationService(stockService, paymentService);
+        // Ajout du paramètre null pour UiService
+        ReservationService reservationService = new ReservationService(stockService, paymentService, null);
 
         IInstallation cabine = new CabineStandard(new ArrayList<>());
 
         // On occupe la cabine
-        cabine.setDisponible(false);
-        assertFalse(cabine.isDisponible());
+        cabine.setEtat(EtatInstallation.RESERVE);
+        assertNotEquals(EtatInstallation.LIBRE, cabine.getEtat());
 
         // On libère via le service
         reservationService.liberer(cabine);
-        assertTrue(cabine.isDisponible());
+        assertEquals(EtatInstallation.LIBRE, cabine.getEtat());
     }
 }
