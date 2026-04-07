@@ -51,7 +51,7 @@ public class ReservationService {
         // 3. Choix du mode de paiement et configuration de la stratégie
         double prixTotal = installationChoisie.getPrix();
         double prixPMR = prixTotal - installation.getPrix();
-        
+
         ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("CB", "Lydia", "PMR");
         choiceDialog.setTitle("Paiement");
         choiceDialog.setHeaderText("Choisissez votre mode de paiement");
@@ -88,7 +88,7 @@ public class ReservationService {
         if (paiementOk) {
             // Stocker le montant réellement payé
             this.lastAmountCharged = prixAFacturer;
-            
+
             // 5. SI PAIEMENT RÉUSSI : On valide la réservation
             installation.setEtat(EtatInstallation.RESERVE);
 
@@ -99,7 +99,7 @@ public class ReservationService {
             installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
 
             // Lancer le timer de 60 secondes
-            installation.setTimeReservedUntil(System.currentTimeMillis() + 60000);
+            installation.setTimeReservedUntil(System.currentTimeMillis() + 10000);
 
             System.out.println("[RESERVATION] Succès pour : " + installation.getDescription());
             System.out.println("[RESERVATION] Montant payé : " + prixAFacturer + "€");
@@ -154,6 +154,8 @@ public class ReservationService {
     public void liberer(IInstallation installation) {
         installation.setEtat(EtatInstallation.LIBRE);
         installation.setTimeReservedUntil(-1);
+
+        uiService.clearDecorations(installation);
         installation.notifyObservers(SanitaireEvent.OCCUPATION_CHANGEE);
         installation.notifyObservers(SanitaireEvent.NETTOYAGE_REQUIS);
     }

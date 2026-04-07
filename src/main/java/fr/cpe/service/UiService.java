@@ -76,6 +76,17 @@ public class UiService {
     }
 
     /**
+     * Supprime les décorations enregistrées et nettoie l'affichage
+     */
+    public void clearDecorations(IInstallation installation) {
+        decorations.remove(installation);
+        HBox container = decorationContainers.get(installation);
+        if (container != null) {
+            container.getChildren().clear();
+        }
+    }
+
+    /**
      * Met à jour les couleurs et le timer sans rien recréer.
      * Appelé 60 fois par seconde par l'update du GameService.
      */
