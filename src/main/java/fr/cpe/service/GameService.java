@@ -24,10 +24,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
+/**
+ * Orchestre la logique principale du jeu : initialisation de la carte,
+ * mise à jour de la boucle de jeu et gestion des interactions utilisateur.
+ */
 public class GameService {
 
     private final MapService mapService;
-    private final UiService uiService; // Nouveau service injecté
+    private final UiService uiService;
     private final ReservationService reservationService;
 
     @Inject
@@ -35,10 +39,14 @@ public class GameService {
         this.mapService = mapService;
         this.uiService = uiService;
         this.reservationService = reservationService;
-
-
     }
 
+    /**
+     * Initialise le panneau de jeu : affiche le fond de carte et dessine
+     * chaque installation avec son gestionnaire de clic.
+     *
+     * @param gamePane le panneau JavaFX sur lequel rendre la scène
+     */
     public void init(Pane gamePane) {
         // Fond
         Image image = new Image(getClass().getResourceAsStream("/lyon.png"));
@@ -56,6 +64,14 @@ public class GameService {
         });
     }
 
+    /**
+     * Appelée à chaque tick de la boucle de jeu.
+     * Libère les installations dont le temps de réservation est écoulé
+     * et rafraîchit l'affichage.
+     *
+     * @param w largeur courante de la fenêtre
+     * @param h hauteur courante de la fenêtre
+     */
     public void update(double w, double h) {
         // Vérifier si des réservations ont expiré
         mapService.getInstallations().forEach((id, installation) -> {
@@ -71,7 +87,12 @@ public class GameService {
         uiService.rafraichirAffichage();
     }
 
-
+    /**
+     * Gère le clic sur une installation : vérifie son état, affiche
+     * une confirmation puis déclenche la réservation si validée.
+     *
+     * @param inst l'installation sur laquelle l'utilisateur a cliqué
+     */
     private void tenterReservation(IInstallation inst) {
         // 1. Gestion des différents états pour le feedback utilisateur
         if (inst.getEtat() == EtatInstallation.EN_MAINTENANCE) {
@@ -111,7 +132,11 @@ public class GameService {
     }
 
     /**
-     * Méthode utilitaire pour éviter de dupliquer le code des alertes
+     * Méthode utilitaire pour éviter de dupliquer le code des alertes.
+     *
+     * @param titre   le titre de la popup
+     * @param message le contenu affiché
+     * @param type    le type d'alerte JavaFX
      */
     private void afficherAlerte(String titre, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
