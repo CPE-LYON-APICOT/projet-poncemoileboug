@@ -35,7 +35,17 @@ Ici lorsqu'on choisit PMR c'est gratuit :
 
 #### *Gestion intelligente du stock avec alertes*
 
-Le seuil d'alerte est déjà défini mais pas véritablement utilisé, pour nous il faut d'abord implémenter la création de compte pour lier le passage aux toilettes à une personne distincte et ensuite afficher l'alerte.
+Le seuil d'alerte est défini en fonction du type d'installation, ici on peut voir le nombre de passages restants avant que la cabine passe en maintenance :
+
+![images/4.png](images/4.png)
+
+Exemple avec Cabine Turque (dernière utilisation) :
+
+![images/5.png](images/5.png)
+
+L'installation passe en maintenance :
+
+![images/6.png](images/6.png)
 
 #### *Notifications et rappels intelligents*
 
