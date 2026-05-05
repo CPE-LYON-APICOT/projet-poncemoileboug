@@ -54,7 +54,11 @@ Le système bloque une installation pendant le temps de réservation, ce qui gar
 
 - Le pass journée n’a pas été proposé dans cette phase, parce que ce modèle demande une réflexion complémentaire sur l’équilibre financier et l’usage. Nous avons préféré stabiliser la réservation standard avant de lancer des offres premium.
 
+- Le fait que le stock soit un singleton. Cela permet d'avoir un stock unique et donc pourrait être important si on avait un contrecoller comme mentionné dans la conception. Cependant, on n'a pas mis en place cette fonctionnalité, mais possible de l'implémenter plus tard
+
 ## Perspectives
+
+- Implémenter la fonctionnalité de contrôle avec l'administrateur qui contrôle le stock et donc en rajouter quand il en a besoin. Et implémenter le fait que l'observer peux alerter le dashboard de l'admin.
 
 - Ajouter des comptes clients pour garder une trace des préférences, des réservations et des avis.
 
